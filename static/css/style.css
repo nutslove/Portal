@@ -1,5 +1,35 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    background-color: #D2C7AB;
+    color: black;
+    padding: 10px;
+}
 .logo img {
+    margin-right: 10px;
     width: 30%;  /* 幅を100%に設定 */
     max-width: 70px;  /* 最大幅を600pxに設定 */
     height: auto;  /* 高さを自動調整 */
+}
+.logo h1 {
+    margin: 0 20px 0 0;
+    font-size: 24px;
+}
+.logo nav {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+.logo nav a {
+    color: black;
+    text-decoration: none;
+    margin-left: 10px;
+}
+.logo nav input {
+    margin-left: 10px;
 }
