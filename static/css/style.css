@@ -11,6 +11,7 @@ body {
     padding: 10px;
 }
 .logo img {
+    margin-left: 10px;
     margin-right: 10px;
     width: 30%;  /* 幅を100%に設定 */
     max-width: 70px;  /* 最大幅を600pxに設定 */
@@ -32,4 +33,14 @@ body {
 }
 .logo nav input {
     margin-left: 10px;
+}
+
+.auth-link {
+    text-decoration: underline !important;
+    margin-left: 70px !important;
+    margin-right: 20px;
+}
+
+.username {
+    /**/
 }

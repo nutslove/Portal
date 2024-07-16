@@ -5,8 +5,13 @@
     <nav>
         <a href="/">Documentation</a>
         <a href="/blog">Blog</a>
-        <a href="/english">English</a>
         <input type="text" placeholder="Search this site...">
+        {{ if .IsLoggedIn }}
+            <span class="username">{{ .Username }}さん</span>
+            <a href="/logout" class="auth-link">Logout</a>
+        {{ else }}
+            <a href="/login" class="auth-link">Login</a>
+        {{ end }}
     </nav>
 </div>
 {{ end }}
