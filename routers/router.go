@@ -23,7 +23,9 @@ func SetupRouter(router *gin.Engine) {
 	})
 
 	router.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.tmpl", nil)
+		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+			"title": "Login",
+		})
 	})
 
 	router.POST("/login", func(c *gin.Context) {
@@ -32,6 +34,16 @@ func SetupRouter(router *gin.Engine) {
 		session.Set("username", username)
 		session.Save()
 		c.Redirect(http.StatusFound, "/")
+	})
+
+	router.GET("/signup", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+			"title": "SignUp",
+		})
+	})
+
+	router.POST("/signup", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/login")
 	})
 
 	router.GET("/logout", func(c *gin.Context) {

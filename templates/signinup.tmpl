@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - TechCareer Talk</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>{{ .title }} - TechCareer Talk</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: white;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,7 +15,7 @@
             margin: 0;
         }
         .login-container {
-            background-color: white;
+            background-color: #D2C7AB;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
@@ -27,20 +27,21 @@
         }
         .login-container input[type="text"], 
         .login-container input[type="password"] {
-            width: 100%;
+            width: 70%;
             padding: 10px;
-            margin: 10px 0;
+            margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
         .login-container button {
             background-color: #28a745;
             color: white;
+            margin-top: 10px;
             padding: 10px;
             border: none;
             border-radius: 3px;
             cursor: pointer;
-            width: 100%;
+            width: 50%;
         }
         .login-container button:hover {
             background-color: #218838;
@@ -54,15 +55,30 @@
         .login-container a:hover {
             text-decoration: underline;
         }
+        .login-container img {
+            margin-left: 10px;
+            margin-right: 10px;
+            width: 30%;  /* 幅を100%に設定 */
+            max-width: 70px;  /* 最大幅を600pxに設定 */
+            height: auto;  /* 高さを自動調整 */
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>Login</h2>
+        <img src="/static/images/santa.png" alt="logo">
+        <h2>{{ .title }}</h2>
+        {{ if eq .title "Login" }}
         <form method="post" action="/login">
-            <input type="text" name="username" placeholder="Username" required>
+        {{ else if eq .title "SignUp" }}
+        <form method="post" action="/signup"> 
+        {{ end }}
+            <input type="text" name="username" placeholder="Nickname" required>
             <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+        {{ if eq .title "SignUp" }}
+            <input type="text" name="age" placeholder="Age">
+        {{ end }}
+            <button type="submit">{{ .title }}</button>
         </form>
         <a href="/">Back to Home</a>
     </div>
