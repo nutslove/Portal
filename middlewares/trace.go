@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
+	trac "go.opentelemetry.io/otel/trace"
 )
 
 func TracerSetting(serviceName string) gin.HandlerFunc {
@@ -15,7 +15,7 @@ func TracerSetting(serviceName string) gin.HandlerFunc {
 		ctx := c.Request.Context()     // 現在のリクエストに関連付けられたcontextを取得する（traceのルートとなるコンテキストを生成）
 		method := c.Request.Method
 		urlPath := c.Request.URL.Path
-		ctx, span := tr.Start(ctx, fmt.Sprintf("%s %s", method, urlPath), trace.WithAttributes(
+		ctx, span := tr.Start(ctx, fmt.Sprintf("%s %s", method, urlPath), trac.WithAttributes(
 			attribute.String("service.name", serviceName),
 		)) // (新しい)spanの開始
 		defer span.End() // spanの終了

@@ -2,6 +2,7 @@ package routers
 
 import (
 	"net/http"
+	"portal/middlewares"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -12,6 +13,7 @@ func SetupRouter(router *gin.Engine) {
 
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
+	router.Use(middlewares.TracerSetting("Portal"))
 
 	router.GET("/", func(c *gin.Context) {
 		session := sessions.Default(c)
@@ -43,7 +45,14 @@ func SetupRouter(router *gin.Engine) {
 	})
 
 	router.POST("/signup", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/login")
+		// signup処理を実装する
+		c.Redirect(http.StatusFound, "/signup_success")
+	})
+
+	router.GET("/signup_success", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+			"title": "SignUp Success!",
+		})
 	})
 
 	router.GET("/logout", func(c *gin.Context) {

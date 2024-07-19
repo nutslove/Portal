@@ -1,12 +1,16 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"portal/config"
 	"portal/routers"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
+
+	config.OtelInitialSetting()
 
 	// 静的ファイルの設定
 	router.Static("/static", "./static")
