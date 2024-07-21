@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"portal/middlewares"
 	"portal/models"
+	"portal/services"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -22,14 +23,14 @@ func SetupRouter(router *gin.Engine) {
 	router.GET("/", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := session.Get("username")
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		c.HTML(http.StatusOK, "index.tpl", gin.H{
 			"IsLoggedIn": username != nil,
 			"Username":   username,
 		})
 	})
 
 	router.GET("/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+		c.HTML(http.StatusOK, "signinup.tpl", gin.H{
 			"title": "Login",
 		})
 	})
@@ -37,13 +38,21 @@ func SetupRouter(router *gin.Engine) {
 	router.POST("/login", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := c.PostForm("username")
-		session.Set("username", username)
-		session.Save()
-		c.Redirect(http.StatusFound, "/")
+		userExistCheckResult := services.UserExistCheck(username)
+		if userExistCheckResult {
+			c.Redirect(http.StatusFound, "/")
+			session.Set("username", username)
+			session.Save()
+		} else {
+			c.HTML(http.StatusUnauthorized, "signinup.tpl", gin.H{
+				"title":  "Login",
+				"status": "loginfailed",
+			})
+		}
 	})
 
 	router.GET("/signup", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+		c.HTML(http.StatusOK, "signinup.tpl", gin.H{
 			"title": "SignUp",
 		})
 	})
@@ -54,7 +63,7 @@ func SetupRouter(router *gin.Engine) {
 	})
 
 	router.GET("/signup_success", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signinup.tmpl", gin.H{
+		c.HTML(http.StatusOK, "signinup.tpl", gin.H{
 			"title": "SignUp Success!",
 		})
 	})

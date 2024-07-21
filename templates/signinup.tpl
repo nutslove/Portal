@@ -69,6 +69,9 @@
         <img src="/static/images/santa.png" alt="logo">
         <h2>{{ .title }}</h2>
         {{ if eq .title "Login" }}
+        {{ if eq .status "loginfailed" }}
+        <p style="color: red;font-style: italic;">NicknameまたはPasswordが間違っています。</p>
+        {{ end }}
         <form method="post" action="/login">
         {{ else if eq .title "SignUp" }}
         <form method="post" action="/signup"> 
