@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 	"portal/middlewares"
+	"portal/models"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -11,7 +12,10 @@ import (
 
 func SetupRouter(router *gin.Engine) {
 
+	_ = models.ConnectDB()
 	store := cookie.NewStore([]byte("secret"))
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 	router.Use(sessions.Sessions("mysession", store))
 	router.Use(middlewares.TracerSetting("Portal"))
 

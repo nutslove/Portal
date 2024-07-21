@@ -79,7 +79,8 @@
         {{ end }}
         {{ if eq .title "SignUp" }}
             <input type="text" name="age" placeholder="Age (Optional)">
-            <input type="text" name="age" placeholder="Company (Optional)">
+            <input type="text" name="company" placeholder="Company (Optional)">
+            <input type="text" name="position" placeholder="Role (Optional)">
         {{ end }}
         {{ if ne .title "SignUp Success!" }}
             <button type="submit">{{ .title }}</button>
