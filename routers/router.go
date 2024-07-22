@@ -58,7 +58,6 @@ func SetupRouter(router *gin.Engine) {
 	})
 
 	router.POST("/signup", func(c *gin.Context) {
-		// signup処理を実装する
 		username := c.PostForm("username")
 		if services.UserExistCheck(c.PostForm("username"), db) {
 			c.HTML(http.StatusBadRequest, "signinup.tpl", gin.H{
