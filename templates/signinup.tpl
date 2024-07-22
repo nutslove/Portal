@@ -69,26 +69,40 @@
         <img src="/static/images/santa.png" alt="logo">
         <h2>{{ .title }}</h2>
         {{ if eq .title "Login" }}
-        {{ if eq .status "loginfailed" }}
-        <p style="color: red;font-style: italic;">NicknameまたはPasswordが間違っています。</p>
-        {{ end }}
-        <form method="post" action="/login">
+            {{ if eq .status "loginfailed" }}
+            <p style="color: red;font-style: italic;">NicknameまたはPasswordが間違っています。</p>
+            {{ end }}        
+            <form method="post" action="/login">
         {{ else if eq .title "SignUp" }}
-        <form method="post" action="/signup"> 
+            {{ if eq .status "signupfailed" }}
+                {{ if eq .reason "existalready" }}
+                <p style="color: red;font-style: italic;">{{ .userid }}はすでに存在しています。</p>
+                {{/*  型チェックは後でJavaScriptに移行 */}}
+                {{ else if eq .reason "agestring" }}
+                <p style="color: red;font-style: italic;">Ageには1~3桁の数字を入力してください。</p>                
+                {{ else if eq .reason "internalservererror" }}
+                <p style="color: red;font-style: italic;">ユーザ登録に失敗しました。</p>                
+                {{ end }}
+            {{ end }}
+            <form method="post" action="/signup"> 
         {{ end }}
+        
         {{ if ne .title "SignUp Success!" }}
-            <input type="text" name="username" placeholder="Nickname" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="text" name="username" minlength="2" maxlength="30" placeholder="Nickname" required>
+            <input type="password" name="password" minlength="1" maxlength="30" placeholder="Password" required>
         {{ end }}
+        
         {{ if eq .title "SignUp" }}
-            <input type="text" name="age" placeholder="Age (Optional)">
-            <input type="text" name="company" placeholder="Company (Optional)">
-            <input type="text" name="position" placeholder="Role (Optional)">
+            <input type="text" name="age" minlength="1" maxlength="3" pattern="^\d+$" title="1~3桁の数字を入力してください。" placeholder="Age (Optional)">
+            <input type="text" name="company" minlength="1" maxlength="50" placeholder="Company (Optional)">
+            <input type="text" name="role" minlength="1" maxlength="50" placeholder="Role (Optional)">
         {{ end }}
+        
         {{ if ne .title "SignUp Success!" }}
             <button type="submit">{{ .title }}</button>
         </form>
         {{ end }}
+        
         {{ if eq .title "SignUp Success!" }}
         <a href="/login">Proceed to Login</a>
         {{ else }}

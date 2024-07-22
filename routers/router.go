@@ -13,7 +13,7 @@ import (
 
 func SetupRouter(router *gin.Engine) {
 
-	_ = models.ConnectDB()
+	db := models.ConnectDB()
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -38,7 +38,7 @@ func SetupRouter(router *gin.Engine) {
 	router.POST("/login", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := c.PostForm("username")
-		userExistCheckResult := services.UserExistCheck(username)
+		userExistCheckResult := services.UserExistCheck(username, db)
 		if userExistCheckResult {
 			c.Redirect(http.StatusFound, "/")
 			session.Set("username", username)
@@ -59,6 +59,17 @@ func SetupRouter(router *gin.Engine) {
 
 	router.POST("/signup", func(c *gin.Context) {
 		// signup処理を実装する
+		username := c.PostForm("username")
+		if services.UserExistCheck(c.PostForm("username"), db) {
+			c.HTML(http.StatusBadRequest, "signinup.tpl", gin.H{
+				"userid": username,
+				"title":  "SignUp",
+				"status": "signupfailed",
+				"reason": "existalready",
+			})
+			return
+		}
+		services.UserCreate(c, db)
 		c.Redirect(http.StatusFound, "/signup_success")
 	})
 
