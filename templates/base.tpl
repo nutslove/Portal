@@ -8,9 +8,12 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header>
-    {{ template "header" . }}
-  </header>
+  <div class="total">
+    <header>
+      {{ template "header" . }}
+    </header>
+    {{ template "sidebar" . }}
+  </div>
 {{ end }}
 {{ define "bottom" }}
 </body>
