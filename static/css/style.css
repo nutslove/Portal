@@ -46,3 +46,13 @@ body {
 .username {
     /**/
 }
+
+.sidebar {
+  height: 90vh;
+  display: flex;
+  width: 96px;
+  background-color: gray;
+  box-sizing: border-box;
+  flex-direction: column;
+  {{/* border-right: 8px solid #5b1b ; */}}
+}
