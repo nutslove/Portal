@@ -2,6 +2,7 @@ package services
 
 import (
 	"net/http"
+	"portal/controllers"
 	"portal/models"
 	"strconv"
 
@@ -11,12 +12,18 @@ import (
 
 func UserExistCheck(userid string, db *gorm.DB) bool {
 	user := models.UserData{Nickname: userid}
-	selectResult := db.First(&user)
+	selectResult := db.Take(&user)
 	if selectResult.Error != nil {
 		return false
 	} else {
 		return true
 	}
+}
+
+func GetUserPassword(userid string, db *gorm.DB) string {
+	var user models.UserData
+	db.Where("userid = ?", userid).Take(&user)
+	return user.Password
 }
 
 func UserCreate(c *gin.Context, db *gorm.DB) {
@@ -33,9 +40,18 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 		}
 		age = &ageValue
 	}
+	pw, err := controllers.EncryptPassword(c.PostForm("password"))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "signinup.tpl", gin.H{
+			"title":  "SignUp",
+			"status": "signupfailed",
+			"reason": "internalservererror",
+		})
+		return
+	}
 	user := models.UserData{
 		Nickname: c.PostForm("username"),
-		Password: c.PostForm("password"),
+		Password: pw,
 		Age:      age,
 		Company:  c.PostForm("company"),
 		Role:     c.PostForm("role"),
@@ -45,7 +61,7 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 		c.HTML(http.StatusInternalServerError, "signinup.tpl", gin.H{
 			"title":  "SignUp",
 			"status": "signupfailed",
-			"reson":  "internalservererror",
+			"reason": "internalservererror",
 		})
 	}
 }

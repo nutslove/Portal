@@ -2,6 +2,7 @@ package routers
 
 import (
 	"net/http"
+	"portal/controllers"
 	"portal/middlewares"
 	"portal/models"
 	"portal/services"
@@ -12,6 +13,11 @@ import (
 )
 
 func SetupRouter(router *gin.Engine) {
+
+	// 404ハンドラーを設定
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404.html", nil)
+	})
 
 	db := models.ConnectDB()
 	store := cookie.NewStore([]byte("secret"))
@@ -38,11 +44,14 @@ func SetupRouter(router *gin.Engine) {
 	router.POST("/login", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := c.PostForm("username")
+		plainPassword := c.PostForm("password")
 		userExistCheckResult := services.UserExistCheck(username, db)
-		if userExistCheckResult {
-			c.Redirect(http.StatusFound, "/")
+		hashedPassword := services.GetUserPassword(username, db)
+		passwordUnmatchErr := controllers.ComparePassword(hashedPassword, plainPassword)
+		if userExistCheckResult && passwordUnmatchErr == nil {
 			session.Set("username", username)
 			session.Save()
+			c.Redirect(http.StatusFound, "/")
 		} else {
 			c.HTML(http.StatusUnauthorized, "signinup.tpl", gin.H{
 				"title":  "Login",

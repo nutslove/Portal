@@ -89,7 +89,7 @@
         
         {{ if ne .title "SignUp Success!" }}
             <input type="text" name="username" minlength="2" maxlength="30" placeholder="Nickname" required>
-            <input type="password" name="password" minlength="1" maxlength="30" placeholder="Password" required>
+            <input type="password" name="password" minlength="1" maxlength="15" placeholder="Password" required>
         {{ end }}
         
         {{ if eq .title "SignUp" }}

@@ -10,8 +10,8 @@ import (
 
 type UserData struct {
 	Nickname string `gorm:"size:30;primaryKey;column:userid"`
-	Password string `gorm:"size:30;column:password;not null"`
-	Age      *int   `gorm:"size:3;column:age"` // Ageの入力がない場合、0ではなくnullで登録するためにPoint型に変更
+	Password string `gorm:"size:60;column:password;not null"` // bcryptで生成されたハッシュ値は通常60文字固定長のため
+	Age      *int   `gorm:"size:3;column:age"`                // Ageの入力がない場合、0ではなくnullで登録するためにPoint型に変更
 	Company  string `gorm:"size:50;column:company"`
 	Role     string `gorm:"size:50;column:role"`
 }
