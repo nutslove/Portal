@@ -2,6 +2,7 @@ package routers
 
 import (
 	"net/http"
+	"os"
 	"portal/controllers"
 	"portal/middlewares"
 	"portal/models"
@@ -20,10 +21,14 @@ func SetupRouter(router *gin.Engine) {
 	})
 
 	db := models.ConnectDB()
-	store := cookie.NewStore([]byte("secret"))
+	store := cookie.NewStore([]byte(os.Getenv("COOKIE_SECRET_KEY")))
+	store.Options(sessions.Options{
+		MaxAge: 3600, // セッションの有効期限(秒)
+		Path:   "/",  // クッキーが有効なパス("/"は全URLパス対象)
+	})
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(sessions.Sessions("mysession", store))
+	router.Use(sessions.Sessions("usersession", store))
 	router.Use(middlewares.TracerSetting("Portal"))
 
 	router.GET("/", func(c *gin.Context) {
