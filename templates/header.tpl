@@ -1,5 +1,5 @@
 {{ define "header" }}
-<div class="logo">
+<div class="header-content">
     <img src="/static/images/santa.png" alt="logo">
     <h1>TechCareer Talk</h1>
     <nav>

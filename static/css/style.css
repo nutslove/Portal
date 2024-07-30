@@ -4,35 +4,47 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.logo {
+header {
+    position: fixed; /*画面下にスクロールしてもヘッダーを固定*/
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* ヘッダーを他の要素の上に表示 */
+}
+
+main {
+    display: flex;
+    padding-top: 40px; /* ヘッダーの高さと同じ値を設定 */
+}
+
+.header-content {
     display: flex;
     align-items: center;
     background-color: #D2C7AB;
     color: black;
     padding: 10px;
+    height: 40px; /* ヘッダーの高さを固定 */
 }
-.logo img {
+.header-content img {
     margin-left: 10px;
     margin-right: 10px;
-    width: 30%;  /* 幅を100%に設定 */
-    max-width: 70px;  /* 最大幅を600pxに設定 */
-    height: auto;  /* 高さを自動調整 */
+    height: 45px;
 }
-.logo h1 {
+.header-content h1 {
     margin: 0 20px 0 0;
     font-size: 24px;
 }
-.logo nav {
+.header-content nav {
     display: flex;
     align-items: center;
     margin-left: auto;
 }
-.logo nav a {
+.header-content nav a {
     color: black;
     text-decoration: none;
     margin-left: 10px;
 }
-.logo nav input {
+.header-content nav input {
     margin-left: 10px;
     margin-right: 70px;
 }
@@ -48,11 +60,30 @@ body {
 }
 
 .sidebar {
-  height: 90vh;
-  display: flex;
-  width: 96px;
-  background-color: gray;
-  box-sizing: border-box;
-  flex-direction: column;
-  {{/* border-right: 8px solid #5b1b ; */}}
+    padding-top: 40px; /* ヘッダーの高さと同じ値を設定 */
+    height: calc(100vh - 60px); /* ビューポートの高さからヘッダーの高さを引く */
+    display: flex;
+    width: 96px;
+    background-color: gray;
+    box-sizing: border-box;
+    flex-direction: column;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 5px;
+    margin: 0;
+}
+
+.sidebar li {
+    padding: 10px;
+}
+
+.sidebar li:first-child {
+    margin-top: -25px; /* 最初のli要素を上に移動 */
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
 }
