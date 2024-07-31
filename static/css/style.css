@@ -61,7 +61,7 @@ main {
 
 .sidebar {
     padding-top: 40px; /* ヘッダーの高さと同じ値を設定 */
-    height: calc(100vh - 60px); /* ビューポートの高さからヘッダーの高さを引く */
+    height: calc(100vh - 40px); /* ビューポートの高さからヘッダーの高さを引く */
     display: flex;
     width: 96px;
     background-color: gray;
@@ -86,4 +86,45 @@ main {
 .sidebar a {
     color: white;
     text-decoration: none;
+}
+
+.board {
+    align-items: center;
+    padding-top: 70px; /* 上部に余白を追加 */
+    width: 1000px;
+    margin: 0 auto; /* 水平方向の中央揃え */
+}
+
+.board table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.board th, .board td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.board th {
+  background-color: #D8BfD8;
+}
+
+/*(even)をつけるとテーブルの１レコードごとに適用*/
+/*.board tr:nth-child(even) { 
+  background-color: #f9f9f9;
+}*/
+
+.board tr:nth-child {
+  background-color: #f9f9f9;
+}
+
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination span {
+  margin: 0 5px;
+  cursor: pointer;
 }
