@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -14,6 +15,22 @@ type UserData struct {
 	Age      *int   `gorm:"size:3;column:age"`                // Ageの入力がない場合、0ではなくnullで登録するためにPoint型に変更
 	Company  string `gorm:"size:50;column:company"`
 	Role     string `gorm:"size:50;column:role"`
+}
+
+type CareerBoard struct {
+	Number int       `gorm:"primaryKey;column:num"`
+	Title  string    `gorm:"size:100;column:title"`
+	Author string    `gorm:"size:30;column:author"`
+	Date   time.Time `gorm:"type:datetime;column:date"`
+	Count  int       `gorm:"column:count"`
+}
+
+type AnythingBoard struct {
+	Number int       `gorm:"primaryKey;column:num"`
+	Title  string    `gorm:"size:100;column:title"`
+	Author string    `gorm:"size:30;column:author"`
+	Date   time.Time `gorm:"type:datetime;column:date"`
+	Count  int       `gorm:"column:count"`
 }
 
 var (
@@ -29,5 +46,7 @@ func ConnectDB() *gorm.DB {
 	}
 
 	db.AutoMigrate(&UserData{})
+	db.AutoMigrate(&CareerBoard{})
+	db.AutoMigrate(&AnythingBoard{})
 	return db
 }

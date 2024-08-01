@@ -5,6 +5,7 @@ import (
 	"portal/controllers"
 	"portal/models"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -69,3 +70,26 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 // func UserDelete(c *gin.Context, db *gorm.DB) {
 
 // }
+
+func GetCareerPosts(db *gorm.DB) []models.CareerBoard {
+	// フォーマットと日付文字列
+	layout := "2006-01-02 15:04:05"
+	date1 := "2024-08-02 02:59:59"
+	date2 := "2024-11-30 11:59:59"
+
+	dateafter1, err := time.Parse(layout, date1)
+	if err != nil {
+		panic(err)
+	}
+
+	dateafter2, err := time.Parse(layout, date2)
+	if err != nil {
+		panic(err)
+	}
+
+	Posts := []models.CareerBoard{
+		{Number: 1, Title: "なんでもいい", Author: "nutslove", Date: dateafter1, Count: 5},
+		{Number: 12345678, Title: "転職したい", Author: "kumi", Date: dateafter2, Count: 50000},
+	}
+	return Posts
+}

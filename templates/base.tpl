@@ -13,7 +13,9 @@
     </header>
     <main>
     {{ template "sidebar" . }}
+    {{ if not .TopPage }}
     {{ template "board" . }}
+    {{ end }}
     </main>
 {{ end }}
 {{ define "bottom" }}

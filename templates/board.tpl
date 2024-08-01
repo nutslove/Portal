@@ -11,34 +11,15 @@
       </tr>
     </thead>
     <tbody>
+      {{ range .posts }}
       <tr>
-        <td>1498</td>
-        <td>同内子羽目</td>
-        <td>デーフリン</td>
-        <td>6/22 7:17</td>
-        <td>277</td>
+        <td style="width: 50px">{{ .Number }}</td>
+        <td style="width: 300px">{{ .Title }}</td>
+        <td style="width: 150px">{{ .Author }}</td>
+        <td style="width: 150px">{{ .Date }}</td>
+        <td style="width: 40px">{{ .Count }}</td>
       </tr>
-      <tr>
-        <td>1496</td>
-        <td>ベランダで農事をしています。</td>
-        <td>BlueSky</td>
-        <td>6/7 1:09</td>
-        <td>312</td>
-      </tr>
-      <tr>
-        <td>1495</td>
-        <td>家でテレワークしてます。</td>
-        <td>WTF</td>
-        <td>7/31 2:13</td>
-        <td>315</td>
-      </tr>
-      <tr>
-        <td>1493</td>
-        <td>遊んでます。</td>
-        <td>お金持ち</td>
-        <td>11/30 12:30</td>
-        <td>777</td>
-      </tr>
+      {{ end }}
     </tbody>
   </table>
   <div class="pagination">

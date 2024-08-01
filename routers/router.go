@@ -37,6 +37,7 @@ func SetupRouter(router *gin.Engine) {
 		c.HTML(http.StatusOK, "index.tpl", gin.H{
 			"IsLoggedIn": username != nil,
 			"Username":   username,
+			"TopPage":    true,
 		})
 	})
 
@@ -97,6 +98,17 @@ func SetupRouter(router *gin.Engine) {
 		session.Delete("username")
 		session.Save()
 		c.Redirect(http.StatusFound, "/")
+	})
+
+	router.GET("/career", func(c *gin.Context) {
+		session := sessions.Default(c)
+		username := session.Get("username")
+		posts := services.GetCareerPosts(db)
+		c.HTML(http.StatusOK, "index.tpl", gin.H{
+			"IsLoggedIn": username != nil,
+			"Username":   username,
+			"posts":      posts,
+		})
 	})
 
 	// user := router.Group("/users")

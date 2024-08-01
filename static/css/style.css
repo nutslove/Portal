@@ -56,7 +56,8 @@ main {
 }
 
 .username {
-    /**/
+    margin-left: 5px !important;
+    margin-right: 20px;
 }
 
 .sidebar {
