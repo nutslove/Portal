@@ -13,9 +13,9 @@
     <tbody>
       {{ range .posts }}
       <tr>
-        <td style="width: 50px">{{ .Number }}</td>
+        <td style="width: 40px">{{ .Number }}</td>
         <td style="width: 300px">{{ .Title }}</td>
-        <td style="width: 150px">{{ .Author }}</td>
+        <td style="width: 100px">{{ .Author }}</td>
         <td style="width: 150px">{{ .Date }}</td>
         <td style="width: 40px">{{ .Count }}</td>
       </tr>

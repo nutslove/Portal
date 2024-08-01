@@ -89,7 +89,7 @@ func GetCareerPosts(db *gorm.DB) []models.CareerBoard {
 
 	Posts := []models.CareerBoard{
 		{Number: 1, Title: "なんでもいい", Author: "nutslove", Date: dateafter1, Count: 5},
-		{Number: 12345678, Title: "転職したい", Author: "kumi", Date: dateafter2, Count: 50000},
+		{Number: 2, Title: "転職したい", Author: "kumi", Date: dateafter2, Count: 50000},
 	}
 	return Posts
 }
