@@ -72,8 +72,8 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 
 func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int) {
 
-	// var posts []models.CareerBoard
-	var posts []models.AnythingBoard
+	var posts []models.CareerBoard
+	// var posts []models.AnythingBoard
 	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts)
 
 	postNum := len(posts)
