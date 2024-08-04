@@ -28,15 +28,29 @@
   </table>
   <div class="pagination">
     {{ if ne .page 1 }}
-    <span><<</span>
-    <span style="margin-right: 30px">Previous</span>
+    <span>
+      <a href=/{{ .BoardType }}/1><<</a>
+    </span>
+    <span style="margin-right: 30px">
+      <a href=/{{ .BoardType }}/{{ subtract .page 1 }}>Previous</a>
+    </span>
     {{ end }}
     {{ range .pageSlice }}
-    <span>{{ . }}</span>
+    <span>
+      {{ if eq $.page . }}
+      {{ . }}
+      {{ else }}
+      <a href=/{{ $.BoardType }}/{{ . }}>{{ . }}</a>
+      {{ end}}
+    </span>
     {{ end }}
     {{ if ne .page .pageNum }}
-    <span style="margin-left: 30px">Next</span>
-    <span>>></span>
+    <span style="margin-left: 30px">
+      <a href=/{{ .BoardType }}/{{ add .page 1 }}>Next</a>
+    </span>
+    <span>
+      <a href=/{{ .BoardType }}/{{ .pageNum }}>>></a>
+    </span>
     {{ end }}
   </div>
 </div>

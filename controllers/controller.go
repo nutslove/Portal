@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"html/template"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,4 +19,17 @@ func ComparePassword(hashedPassword, requestPassword string) error {
 
 func NotFoundResponse(c *gin.Context) {
 	c.HTML(http.StatusNotFound, "404.html", nil)
+}
+
+func RegisterCustomFunction(r *gin.Engine) {
+	funcMap := template.FuncMap{
+		"add": func(x, y int) int {
+			return x + y
+		},
+		"subtract": func(x, y int) int {
+			return x - y
+		},
+	}
+
+	r.SetFuncMap(funcMap)
 }

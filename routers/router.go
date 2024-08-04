@@ -115,6 +115,7 @@ func SetupRouter(router *gin.Engine) {
 				"page":       1,
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
+				"BoardType":  "career",
 			})
 		})
 
@@ -142,6 +143,7 @@ func SetupRouter(router *gin.Engine) {
 				"page":       pageInt,
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
+				"BoardType":  "career",
 			})
 		})
 	}

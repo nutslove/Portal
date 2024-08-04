@@ -97,35 +97,43 @@ main {
 }
 
 .board table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .board th, .board td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
 .board th {
-  background-color: #D8BfD8;
+    background-color: #D8BfD8;
 }
 
 /*(even)をつけるとテーブルの１レコードごとに適用*/
 /*.board tr:nth-child(even) { 
-  background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }*/
 
 .board tr:nth-child {
-  background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }
 
 .pagination {
-  margin-top: 20px;
-  text-align: center;
+    margin-top: 20px;
+    text-align: center;
 }
 
 .pagination span {
-  margin: 0 5px;
-  cursor: pointer;
+    margin: 0 5px;
+}
+
+.pagination a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pagination a:hover {
+    text-decoration: underline;
 }
