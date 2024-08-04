@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"math"
 	"net/http"
 	"portal/controllers"
@@ -72,17 +71,29 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 
 // }
 
-func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int) {
+func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int, int, []int) {
 
 	var posts []models.CareerBoard
-	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts)
+	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts) // 1ページ内にpostは15個まで表示
 
 	postNum := len(posts)
 	var count int64
 	db.Model(&models.CareerBoard{}).Count(&count)
-	pageTotal := math.Ceil((float64(count) / 15)) // 総ページ数 (1ページ内にpostは15個まで表示)
-	fmt.Println("page数:", pageTotal)
-	// → あとで画面下部のページ数表示に使う
+	pageNum := int(math.Ceil((float64(count) / 15))) // 総ページ数 (1ページ内にpostは15個まで表示)
+	var pageSlice []int
+	if pageNum > 10 && page > pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 〜 最後のページの場合、最後のページ - 10 〜 最後のページを表示する
+		for i := pageNum - 9; i <= pageNum; i++ {
+			pageSlice = append(pageSlice, i)
+		}
+	} else if pageNum > 10 && page <= pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 より前の場合、ユーザがアクセスしたページ 〜 ユーザがアクセスしたページ + 10ページを表示する
+		for i := page; i < page+10; i++ {
+			pageSlice = append(pageSlice, i)
+		}
+	} else { // 総ページ数が10個以下の場合
+		for i := 1; i <= pageNum; i++ {
+			pageSlice = append(pageSlice, i)
+		}
+	}
 
 	var formattedPosts []map[string]interface{}
 
@@ -96,7 +107,7 @@ func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int) {
 		})
 	}
 
-	return formattedPosts, postNum
+	return formattedPosts, postNum, pageNum, pageSlice
 }
 
 func AddCareerPost(db *gorm.DB) {
