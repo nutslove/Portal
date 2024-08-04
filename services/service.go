@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+	"math"
 	"net/http"
 	"portal/controllers"
 	"portal/models"
@@ -73,10 +75,15 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int) {
 
 	var posts []models.CareerBoard
-	// var posts []models.AnythingBoard
 	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts)
 
 	postNum := len(posts)
+	var count int64
+	db.Model(&models.CareerBoard{}).Count(&count)
+	pageTotal := math.Ceil((float64(count) / 15)) // 総ページ数 (1ページ内にpostは15個まで表示)
+	fmt.Println("page数:", pageTotal)
+	// → あとで画面下部のページ数表示に使う
+
 	var formattedPosts []map[string]interface{}
 
 	for _, post := range posts {
