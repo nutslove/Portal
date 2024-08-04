@@ -13,11 +13,15 @@
     <tbody>
       {{ range .posts }}
       <tr>
-        <td style="width: 40px">{{ .Number }}</td>
-        <td style="width: 300px">{{ .Title }}</td>
-        <td style="width: 100px">{{ .Author }}</td>
-        <td style="width: 150px">{{ .Date }}</td>
-        <td style="width: 40px">{{ .Count }}</td>
+        <td style="width: 30px">{{ .Number }}</td>
+        <td style="width: 300px">
+          <a>
+          {{ .Title }}
+          </a>
+        </td>
+        <td style="width: 90px">{{ .Author }}</td>
+        <td style="width: 100px">{{ .Date }}</td>
+        <td style="width: 30px">{{ .Count }}</td>
       </tr>
       {{ end }}
     </tbody>

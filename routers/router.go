@@ -7,6 +7,7 @@ import (
 	"portal/middlewares"
 	"portal/models"
 	"portal/services"
+	"strconv"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -17,7 +18,7 @@ func SetupRouter(router *gin.Engine) {
 
 	// 404ハンドラーを設定
 	router.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusNotFound, "404.html", nil)
+		controllers.NotFoundResponse(c)
 	})
 
 	db := models.ConnectDB()
@@ -100,16 +101,45 @@ func SetupRouter(router *gin.Engine) {
 		c.Redirect(http.StatusFound, "/")
 	})
 
-	router.GET("/career", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := session.Get("username")
-		posts := services.GetCareerPosts(db)
-		c.HTML(http.StatusOK, "index.tpl", gin.H{
-			"IsLoggedIn": username != nil,
-			"Username":   username,
-			"posts":      posts,
+	career := router.Group("/career")
+	{
+		career.GET("", func(c *gin.Context) {
+			session := sessions.Default(c)
+			username := session.Get("username")
+			posts, _ := services.GetCareerPosts(1, db)
+			// 最初はpost数が0のケースもあり得るので、トップページではpost数による判定はせずにTableのヘッダーだけ表示する
+			c.HTML(http.StatusOK, "index.tpl", gin.H{
+				"IsLoggedIn": username != nil,
+				"Username":   username,
+				"posts":      posts,
+			})
 		})
-	})
+
+		career.GET("/:page", func(c *gin.Context) {
+
+			// pageにstringだったり、存在しないページを直接指定した場合404ページを返す処理を追加する
+
+			session := sessions.Default(c)
+			username := session.Get("username")
+			page := c.Param("page")
+			pageInt, err := strconv.Atoi(page)
+			if err != nil {
+				controllers.NotFoundResponse(c)
+				return
+			}
+			posts, postNum := services.GetCareerPosts(pageInt, db)
+			if postNum == 0 {
+				controllers.NotFoundResponse(c)
+				return
+			}
+
+			c.HTML(http.StatusOK, "index.tpl", gin.H{
+				"IsLoggedIn": username != nil,
+				"Username":   username,
+				"posts":      posts,
+			})
+		})
+	}
 
 	// user := router.Group("/users")
 

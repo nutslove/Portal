@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,4 +14,8 @@ func EncryptPassword(password string) (string, error) {
 
 func ComparePassword(hashedPassword, requestPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(requestPassword))
+}
+
+func NotFoundResponse(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "404.html", nil)
 }

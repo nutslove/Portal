@@ -5,7 +5,6 @@ import (
 	"portal/controllers"
 	"portal/models"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -71,25 +70,32 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 
 // }
 
-func GetCareerPosts(db *gorm.DB) []models.CareerBoard {
-	// フォーマットと日付文字列
-	layout := "2006-01-02 15:04:05"
-	date1 := "2024-08-02 02:59:59"
-	date2 := "2024-11-30 11:59:59"
+func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int) {
 
-	dateafter1, err := time.Parse(layout, date1)
-	if err != nil {
-		panic(err)
+	// var posts []models.CareerBoard
+	var posts []models.AnythingBoard
+	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts)
+
+	postNum := len(posts)
+	var formattedPosts []map[string]interface{}
+
+	for _, post := range posts {
+		formattedPosts = append(formattedPosts, map[string]interface{}{
+			"Number": post.Number,
+			"Title":  post.Title,
+			"Author": post.Author,
+			"Date":   post.Date.Format("2006-01-02 15:04"),
+			"Count":  post.Count,
+		})
 	}
 
-	dateafter2, err := time.Parse(layout, date2)
-	if err != nil {
-		panic(err)
-	}
+	return formattedPosts, postNum
+}
 
-	Posts := []models.CareerBoard{
-		{Number: 1, Title: "なんでもいい", Author: "nutslove", Date: dateafter1, Count: 5},
-		{Number: 2, Title: "転職したい", Author: "kumi", Date: dateafter2, Count: 50000},
-	}
-	return Posts
+func AddCareerPost(db *gorm.DB) {
+
+}
+
+func DeleteCareerPost() {
+
 }
