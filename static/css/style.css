@@ -14,7 +14,7 @@ header {
 
 main {
     display: flex;
-    padding-top: 40px; /* ヘッダーの高さと同じ値を設定 */
+    padding-top: 60px; /* ヘッダーの高さと同じ値を設定 */
 }
 
 .header-content {
@@ -61,13 +61,14 @@ main {
 }
 
 .sidebar {
-    padding-top: 40px; /* ヘッダーの高さと同じ値を設定 */
-    height: calc(100vh - 40px); /* ビューポートの高さからヘッダーの高さを引く */
+    position: fixed; /* サイドバーを画面上の固定位置に配置 */
+    padding-top: 60px; /* ヘッダーの高さと同じ値を設定 */
+    height: calc(100vh - 60px); /* ビューポートの高さからヘッダーの高さを引く */
     display: flex;
-    width: 96px;
+    width: 96px; /* .boardのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     background-color: gray;
     box-sizing: border-box;
-    flex-direction: column;
+    flex-direction: column;*/
 }
 
 .sidebar ul {
@@ -90,9 +91,10 @@ main {
 }
 
 .board {
+    padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     align-items: center;
     padding-top: 70px; /* 上部に余白を追加 */
-    width: 1000px;
+    width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
 }
 
@@ -123,6 +125,7 @@ main {
 .pagination {
     margin-top: 20px;
     text-align: center;
+    margin-bottom: 30px;
 }
 
 .pagination span {
