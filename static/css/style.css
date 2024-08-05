@@ -29,7 +29,12 @@ main {
     margin-left: 10px;
     margin-right: 10px;
     height: 45px;
+    transition: all 0.3s ease;
 }
+.header-content img:hover {
+    transform: scale(1.05); /* 5%大きくする */
+}
+
 .header-content h1 {
     margin: 0 20px 0 0;
     font-size: 24px;
@@ -56,7 +61,6 @@ main {
 }
 
 .username {
-    margin-left: 5px !important;
     margin-right: 20px;
 }
 
@@ -83,7 +87,7 @@ main {
 
 .sidebar a:hover {
     background-color: #DCDCDC;
-    transform: translateX(5px) translateY(2px); /* 右下に少し動く */
+    transform: translateX(2px) translateY(2px); /* 右下に少し動く */
 }
 
 .sidebar ul {
@@ -94,7 +98,9 @@ main {
 
 .sidebar li {
     padding: 10px;
+    margin-bottom: 10px;
     font: italic 0.9rem "Fira Sans", serif;
+    font-weight: bold;
 }
 
 .sidebar li:first-child {
@@ -110,14 +116,18 @@ main {
 }
 
 .board table {
+    table-layout: fixed;
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* テーブルのセル（th, td）と外枠（table）の境界線を結合. 隣接するセル間の境界線を1本にまとめる.*/
 }
 
 .board th, .board td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+    overflow: hidden; /* コンテンツが要素のボックスに収まらない場合、はみ出た部分が切り取る */
+    text-overflow: ellipsis; /* overflow: hidden; と組み合わせて使用してテキストが要素の幅を超える場合、省略記号（...）で表示する */
+    white-space: nowrap; /* テキストの折り返しを防ぎ、一行で表示 (スペースや改行が入っていても、テキストは横に伸び続ける)*/
 }
 
 .board th {

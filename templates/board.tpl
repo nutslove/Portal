@@ -3,25 +3,25 @@
   <table>
     <thead>
       <tr>
-        <th>No.</th>
-        <th>題名</th>
-        <th>作成者</th>
-        <th>作成日</th>
-        <th>閲覧数</th>
+        <th style="width: 10%;text-align: center;">No.</th>
+        <th style="width: 47%;text-align: center;">題名</th>
+        <th style="width: 15%;text-align: center;">作成者</th>
+        <th style="width: 18%;text-align: center;">作成日</th>
+        <th style="width: 10%;text-align: center;">閲覧数</th>
       </tr>
     </thead>
     <tbody>
       {{ range .posts }}
       <tr>
-        <td style="width: 30px">{{ .Number }}</td>
-        <td style="width: 300px">
+        <td style="width: 10%;text-align: center;">{{ .Number }}</td>
+        <td style="width: 47%;">
           <a>
           {{ .Title }}
           </a>
         </td>
-        <td style="width: 90px">{{ .Author }}</td>
-        <td style="width: 100px">{{ .Date }}</td>
-        <td style="width: 30px">{{ .Count }}</td>
+        <td style="width: 15%;">{{ .Author }}</td>
+        <td style="width: 18%;">{{ .Date }}</td>
+        <td style="width: 10%;text-align: center;">{{ .Count }}</td>
       </tr>
       {{ end }}
     </tbody>
