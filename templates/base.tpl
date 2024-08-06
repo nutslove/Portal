@@ -13,8 +13,10 @@
     </header>
     <main>
     {{ template "sidebar" . }}
-    {{ if not .TopPage }}
-    {{ template "board" . }}
+    {{ if eq .BoardType "career" }}
+      {{ template "board" . }}
+    {{ else if .Post }}
+      {{ template "post" . }}
     {{ end }}
     </main>
 {{ end }}

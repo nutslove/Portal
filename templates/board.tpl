@@ -15,7 +15,7 @@
       <tr>
         <td style="width: 10%;text-align: center;">{{ .Number }}</td>
         <td style="width: 47%;">
-          <a>
+          <a class="postlist" href="/{{ $.BoardType }}/{{ $.page }}?post={{ .Number }}">
           {{ .Title }}
           </a>
         </td>

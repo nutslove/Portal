@@ -38,7 +38,6 @@ func SetupRouter(router *gin.Engine) {
 		c.HTML(http.StatusOK, "index.tpl", gin.H{
 			"IsLoggedIn": username != nil,
 			"Username":   username,
-			"TopPage":    true,
 		})
 	})
 
@@ -124,6 +123,16 @@ func SetupRouter(router *gin.Engine) {
 			// pageに文字列(string)が入っていたり、存在しないページを直接指定した場合404ページを返す
 			session := sessions.Default(c)
 			username := session.Get("username")
+			post := c.Query("post")
+			if post != "" {
+				// fmt.Println("post番号:", post)
+				c.HTML(http.StatusOK, "index.tpl", gin.H{
+					"IsLoggedIn": username != nil,
+					"Username":   username,
+					"Post":       true,
+				})
+				return
+			}
 			page := c.Param("page")
 			pageInt, err := strconv.Atoi(page)
 			if err != nil {
