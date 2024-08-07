@@ -2,7 +2,10 @@ package config
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
+	"os"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -11,6 +14,9 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
+	"github.com/opensearch-project/opensearch-go/v4"
+	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
 func OtelInitialSetting() {
@@ -35,4 +41,21 @@ func OtelInitialSetting() {
 	)
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.TraceContext{})
+}
+
+func OpensearchNewClient() (*opensearchapi.Client, error) {
+	client, err := opensearchapi.NewClient(
+		opensearchapi.Config{
+			Client: opensearch.Config{
+				Transport: &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				},
+				Addresses: []string{"https://localhost:9200"},
+				Username:  "admin",
+				Password:  os.Getenv("OPENSEARCH_ADMIN_PASSWORD"),
+			},
+		},
+	)
+
+	return client, err
 }
