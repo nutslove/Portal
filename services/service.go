@@ -1,14 +1,23 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
 	"math"
 	"net/http"
+	"portal/config"
 	"portal/controllers"
 	"portal/models"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
 func UserExistCheck(userid string, db *gorm.DB) bool {
@@ -71,7 +80,7 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 
 // }
 
-func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int, int, []int) {
+func GetCareerPostsList(page int, db *gorm.DB) ([]map[string]interface{}, int, int, []int) {
 
 	var posts []models.CareerBoard
 	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts) // 1ページ内にpostは15個まで表示
@@ -110,7 +119,98 @@ func GetCareerPosts(page int, db *gorm.DB) ([]map[string]interface{}, int, int, 
 	return formattedPosts, postNum, pageNum, pageSlice
 }
 
+func GetCareerPostContent(postId string) (string, error) {
+	client, err := config.OpensearchNewClient()
+	if err != nil {
+		log.Fatal("cannot initialize", err)
+	}
+
+	ctx := context.Background()
+	// infoResp, err := client.Info(ctx, nil)
+	// if err != nil {
+	// 	log.Fatalf("Error getting response: %s", err)
+	// }
+	// fmt.Printf("Cluster INFO:\n  Cluster Name: %s\n  Cluster UUID: %s\n  Version Number: %s\n", infoResp.ClusterName, infoResp.ClusterUUID, infoResp.Version.Number)
+	var post struct {
+		Title  string `json:"title"`
+		Author string `json:"author"`
+		Post   string `json:"post"`
+	}
+	content := strings.NewReader(fmt.Sprintf(`{
+    "query": {
+        "ids": {
+            "values": ["%s"]
+        }
+    }
+	}`, postId))
+	searchResp, err := client.Search(
+		ctx,
+		&opensearchapi.SearchReq{
+			Body: content,
+		},
+	)
+	if err != nil {
+		log.Fatal("failed to search document ", err)
+	}
+	fmt.Printf("Search hits: %v\n", searchResp.Hits.Total.Value)
+
+	if searchResp.Hits.Total.Value > 0 {
+		// indices := make([]string, 0)
+		for _, hit := range searchResp.Hits.Hits {
+			err := json.Unmarshal(hit.Source, &post) // post変数に検索内容で上書き
+			if err != nil {
+				log.Printf("Error unmarshaling document: %v", err)
+				continue
+			}
+
+			fmt.Printf("Document ID: %s\n", hit.ID)
+			fmt.Printf("  Title: %s\n", post.Title)
+			fmt.Printf("  Author: %s\n", post.Author)
+			fmt.Printf("  Post: %s\n", post.Post)
+
+			// add := true
+			// for _, index := range indices {
+			// 	if index == hit.Index {
+			// 		add = false
+			// 	}
+			// }
+			// if add {
+			// 	indices = append(indices, hit.Index)
+			// }
+		}
+		// fmt.Printf("Search indices: %s\n", strings.Join(indices, ","))
+		return post.Post, nil
+	} else {
+		return "", errors.New("not found")
+	}
+}
+
 func AddCareerPost(db *gorm.DB) {
+
+	// type Posts struct {
+	// 	Title  string `json:"title"`
+	// 	Author string `json:"author"`
+	// 	Post   string `json:"post"`
+	// }
+	// post := Posts{
+	// 	Title:  "What are you doing?",
+	// 	Author: "Lee",
+	// 	Post:   "I am about to go to the bed.",
+	// }
+	// docId := postId
+	// req := opensearchapi.IndexReq{
+	// 	Index:      "career",
+	// 	DocumentID: docId, // DocumentIDは内部的に `_id` フィールドとして扱われ、通常 keywordタイプと同様に動作する
+	// 	Body:       opensearchutil.NewJSONReader(&post),
+	// 	Params: opensearchapi.IndexParams{
+	// 		Refresh: "true", // ドキュメントをインデックスに追加した直後に検索可能にする（デフォルトは非同期更新）
+	// 	},
+	// }
+	// insertResp, err := client.Index(ctx, req)
+	// if err != nil {
+	// 	log.Fatal("failed to insert document ", err)
+	// }
+	// fmt.Printf("Created document in %s\n  ID: %s\n", insertResp.Index, insertResp.ID)
 
 }
 

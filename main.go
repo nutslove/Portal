@@ -38,14 +38,21 @@ func main() {
 	fmt.Printf("Cluster INFO:\n  Cluster Name: %s\n  Cluster UUID: %s\n  Version Number: %s\n", infoResp.ClusterName, infoResp.ClusterUUID, infoResp.Version.Number)
 
 	// Define index settings.
-	IndexName := "go-test-index1"
+	IndexName := "career"
 	mapping := strings.NewReader(`{
 		"settings": {
 			"index": {
 						"number_of_shards": 1,
-						"number_of_replicas": 2
+						"number_of_replicas": 1
 						}
+			},
+			"mappings": {
+					"properties": {
+							"title": { "type": "text" },
+							"author": { "type": "keyword" },
+							"post": { "type": "text" }
 					}
+			}
 		}`)
 
 	// Create an index with non-default settings.
@@ -72,23 +79,33 @@ func main() {
 
 	// When using a structure, the conversion process to io.Reader can be omitted using utility functions.
 	// Add a document to the index.
-	document := struct {
-		Title    string `json:"title"`
-		Director string `json:"director"`
-		Year     string `json:"year"`
-	}{
-		Title:    "Moneyball",
-		Director: "Bennett Miller",
-		Year:     "2011",
+	// document := struct {
+	// 	Title  string `json:"title"`
+	// 	Author string `json:"author"`
+	// 	Post   string `json:"post"`
+	// }{
+	// 	Title:  "What a day!",
+	// 	Author: "Lee Joonki",
+	// 	Post:   "Today is very good!!! I am so happy~",
+	// }
+	type Posts struct {
+		Title  string `json:"title"`
+		Author string `json:"author"`
+		Post   string `json:"post"`
+	}
+	post := Posts{
+		Title:  "Are you happy?",
+		Author: "Sena",
+		Post:   "Yes! I am very happy with you!",
 	}
 
-	docId := "1"
+	docId := "38"
 	req := opensearchapi.IndexReq{
 		Index:      IndexName,
-		DocumentID: docId,
-		Body:       opensearchutil.NewJSONReader(&document),
+		DocumentID: docId, // DocumentIDは内部的に `_id` フィールドとして扱われ、通常 keywordタイプと同様に動作する
+		Body:       opensearchutil.NewJSONReader(&post),
 		Params: opensearchapi.IndexParams{
-			Refresh: "true",
+			Refresh: "true", // ドキュメントをインデックスに追加した直後に検索可能にする（デフォルトは非同期更新）
 		},
 	}
 	insertResp, err := client.Index(ctx, req)
@@ -98,14 +115,33 @@ func main() {
 	fmt.Printf("Created document in %s\n  ID: %s\n", insertResp.Index, insertResp.ID)
 
 	// Search for the document.
+	///////////////////////////////////////////////////////////////////////////
+	//// size: 返す検索結果の最大数
+	//// multi_match: 複数のフィールドで同じクエリを検索するためのクエリタイプ（単一フィールドでの検索はmatch）
+	//// query: 検索するテキストを指定
+	//// fields: 検索対象のフィールドを指定
+	//// ^2: ブースト値。"title"フィールドのスコアを2倍にする
+	///////////////////////////////////////////////////////////////////////////
+	// content := strings.NewReader(`{
+	// 	"size": 5,
+	// 	"query": {
+	// 			"multi_match": {
+	// 					"query": "miller",
+	// 					"fields": ["title^2", "director"]
+	// 			}
+	// 	}
+	// }`)
+
+	///////////////////////////////////////////////////////////////////////
+	//// ids: DocumentID(内部的には`_id`フィールドとして扱われる)で検索
+	//// values: 検索したいDocumentIDを指定
+	///////////////////////////////////////////////////////////////////////
 	content := strings.NewReader(`{
-		"size": 5,
-		"query": {
-				"multi_match": {
-						"query": "miller",
-						"fields": ["title^2", "director"]
-				}
-		}
+    "query": {
+        "ids": {
+            "values": ["37"]
+        }
+    }
 	}`)
 
 	searchResp, err := client.Search(
@@ -122,21 +158,16 @@ func main() {
 	if searchResp.Hits.Total.Value > 0 {
 		indices := make([]string, 0)
 		for _, hit := range searchResp.Hits.Hits {
-			var doc struct {
-				Title    string `json:"title"`
-				Director string `json:"director"`
-				Year     string `json:"year"`
-			}
-			err := json.Unmarshal(hit.Source, &doc)
+			err := json.Unmarshal(hit.Source, &post) // post変数に検索内容で上書き
 			if err != nil {
 				log.Printf("Error unmarshaling document: %v", err)
 				continue
 			}
 
 			fmt.Printf("Document ID: %s\n", hit.ID)
-			fmt.Printf("  Title: %s\n", doc.Title)
-			fmt.Printf("  Director: %s\n", doc.Director)
-			fmt.Printf("  Year: %s\n", doc.Year)
+			fmt.Printf("  Title: %s\n", post.Title)
+			fmt.Printf("  Author: %s\n", post.Author)
+			fmt.Printf("  Post: %s\n", post.Post)
 
 			add := true
 			for _, index := range indices {

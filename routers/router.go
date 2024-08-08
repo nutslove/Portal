@@ -105,7 +105,7 @@ func SetupRouter(router *gin.Engine) {
 		career.GET("", func(c *gin.Context) {
 			session := sessions.Default(c)
 			username := session.Get("username")
-			posts, _, pageNum, pageSlice := services.GetCareerPosts(1, db)
+			posts, _, pageNum, pageSlice := services.GetCareerPostsList(1, db)
 			// 最初はpost数が0のケースもあり得るので、トップページではpost数による判定はせずにTableのヘッダーだけ表示する
 			c.HTML(http.StatusOK, "index.tpl", gin.H{
 				"IsLoggedIn": username != nil,
@@ -123,13 +123,19 @@ func SetupRouter(router *gin.Engine) {
 			// pageに文字列(string)が入っていたり、存在しないページを直接指定した場合404ページを返す
 			session := sessions.Default(c)
 			username := session.Get("username")
-			post := c.Query("post")
-			if post != "" {
+			postId := c.Query("post")
+			if postId != "" {
+				PostContent, err := services.GetCareerPostContent(postId)
+				if err != nil {
+					controllers.NotFoundResponse(c)
+					return
+				}
 				// fmt.Println("post番号:", post)
 				c.HTML(http.StatusOK, "index.tpl", gin.H{
-					"IsLoggedIn": username != nil,
-					"Username":   username,
-					"Post":       true,
+					"IsLoggedIn":  username != nil,
+					"Username":    username,
+					"Post":        true,
+					"PostContent": PostContent,
 				})
 				return
 			}
@@ -139,7 +145,7 @@ func SetupRouter(router *gin.Engine) {
 				controllers.NotFoundResponse(c)
 				return
 			}
-			posts, postNum, pageNum, pageSlice := services.GetCareerPosts(pageInt, db)
+			posts, postNum, pageNum, pageSlice := services.GetCareerPostsList(pageInt, db)
 			if postNum == 0 {
 				controllers.NotFoundResponse(c)
 				return
