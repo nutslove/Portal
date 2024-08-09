@@ -9,7 +9,6 @@
         <div style="padding-right: 100px">
             <a href="/blog">Blog</a> <!--このサイトのサーバ構成や個人のブログとして使う-->
         </div>
-            {{/* <input type="text" placeholder="Search this site..."> */}}
         {{ if .IsLoggedIn }}
         <div>
             <span class="username">{{ .Username }}さん</span>

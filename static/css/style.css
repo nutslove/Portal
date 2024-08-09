@@ -14,7 +14,7 @@ header {
 
 main {
     display: flex;
-    padding-top: 60px; /* ヘッダーの高さと同じ値を設定 */
+    padding-top: 50px;
 }
 
 .header-content {
@@ -23,12 +23,12 @@ main {
     background-color: #D2C7AB;
     color: black;
     padding: 10px;
-    height: 40px; /* ヘッダーの高さを固定 */
+    height: 30px;
 }
 .header-content img {
     margin-left: 10px;
     margin-right: 10px;
-    height: 45px;
+    height: 40px;
     transition: all 0.3s ease;
 }
 .header-content img:hover {
@@ -66,8 +66,8 @@ main {
 
 .sidebar {
     position: fixed; /* サイドバーを画面上の固定位置に配置 */
-    padding-top: 60px; /* ヘッダーの高さと同じ値を設定 */
-    height: calc(100vh - 60px); /* ビューポートの高さからヘッダーの高さを引く */
+    padding-top: 50px; /* mainのpadding-topと同じ値を設定 */
+    height: calc(100vh - 50px); /* ビューポートの高さからヘッダーの高さを引く */
     display: flex;
     width: 96px; /* .boardのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     background-color: #DCDCDC;
@@ -99,7 +99,7 @@ main {
 .sidebar li {
     padding: 10px;
     margin-bottom: 10px;
-    font: italic 0.9rem "Fira Sans", serif;
+    font: normal 0.9rem "Fira Sans", serif;
     font-weight: bold;
 }
 
@@ -110,12 +110,43 @@ main {
 .board {
     padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     align-items: center;
-    padding-top: 70px; /* 上部に余白を追加 */
+    padding-top: 30px; /* 上部に余白を追加 */
     width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
 }
 
+.board h1 {
+    font-size: 25px;
+    font: normal 1.5rem "Fira Sans", serif;
+    font-weight: bold;
+}
+
+.board form {
+    display: inline-block;
+}
+
+.board input {
+    width: 250px;
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid; /* 1px=枠線の太さ、solidがないと枠線自体がなくなる */
+    margin-right: 5px;
+}
+
+.board button {
+    cursor: pointer;
+    border-radius: 5px;
+    height: 30px;
+    border: 1px solid #ccc; /* 1px=枠線の太さ、solidがないと枠線自体がなくなる. 枠線の色 */
+}
+
+.board button:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 影を追加して浮き上がるように見せる */
+    transition: all 0.2s ease; /* アニメーションの速度を調整 */
+}
+
 .board table {
+    margin-top: 20px;
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse; /* テーブルのセル（th, td）と外枠（table）の境界線を結合. 隣接するセル間の境界線を1本にまとめる.*/

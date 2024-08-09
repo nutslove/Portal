@@ -115,6 +115,7 @@ func SetupRouter(router *gin.Engine) {
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
 				"BoardType":  "career",
+				"BoardName":  "キャリア相談",
 			})
 		})
 
@@ -134,7 +135,7 @@ func SetupRouter(router *gin.Engine) {
 				c.HTML(http.StatusOK, "index.tpl", gin.H{
 					"IsLoggedIn":  username != nil,
 					"Username":    username,
-					"Post":        true,
+					"PostRead":    true,
 					"PostContent": PostContent,
 				})
 				return
@@ -159,6 +160,17 @@ func SetupRouter(router *gin.Engine) {
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
 				"BoardType":  "career",
+				"BoardName":  "キャリア相談",
+			})
+		})
+
+		career.GET("/posting", func(c *gin.Context) {
+			session := sessions.Default(c)
+			username := session.Get("username")
+			c.HTML(http.StatusOK, "index.tpl", gin.H{
+				"IsLoggedIn": username != nil,
+				"Username":   username,
+				"PostWrite":  true,
 			})
 		})
 	}
