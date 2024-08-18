@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"portal/controllers"
@@ -13,6 +14,11 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
+
+// ユーザからのPostの投稿内容
+type RequestData struct {
+	Content string `json:"content"`
+}
 
 func SetupRouter(router *gin.Engine) {
 
@@ -114,6 +120,7 @@ func SetupRouter(router *gin.Engine) {
 				"page":       1,
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
+				"PostList":   true,
 				"BoardType":  "career",
 				"BoardName":  "キャリア相談",
 			})
@@ -159,6 +166,7 @@ func SetupRouter(router *gin.Engine) {
 				"page":       pageInt,
 				"pageSlice":  pageSlice,
 				"pageNum":    pageNum,
+				"PostList":   true,
 				"BoardType":  "career",
 				"BoardName":  "キャリア相談",
 			})
@@ -171,7 +179,40 @@ func SetupRouter(router *gin.Engine) {
 				"IsLoggedIn": username != nil,
 				"Username":   username,
 				"PostWrite":  true,
+				"BoardType":  "career",
 			})
+		})
+
+		career.POST("/posting", func(c *gin.Context) {
+			// session := sessions.Default(c)
+			// username := session.Get("username")
+			var requestData RequestData
+
+			// リクエストボディをJSONとしてバインド
+			if err := c.ShouldBindJSON(&requestData); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": "Invalid request data",
+				})
+				return
+			}
+			fmt.Println("requestData:", requestData)
+
+			// データの処理（ここにビジネスロジックを追加）
+			// 例えば、データベースに保存する、ファイルに書き込むなど
+
+			c.JSON(http.StatusOK, gin.H{
+				"success":     true,
+				"redirectUrl": "/career/1?post=50", // DBに挿入後、Numberを取得し、post=のところに指定するように修正する
+			})
+
+			// c.HTML(http.StatusOK, "index.tpl", gin.H{
+			// 	"IsLoggedIn":  username != nil,
+			// 	"Username":    username,
+			// 	"PostRead":    true,
+			// 	"PostContent": requestData,
+			// })
+			// return
 		})
 	}
 

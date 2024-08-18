@@ -89,6 +89,9 @@ func GetCareerPostsList(page int, db *gorm.DB) ([]map[string]interface{}, int, i
 	var count int64
 	db.Model(&models.CareerBoard{}).Count(&count)
 	pageNum := int(math.Ceil((float64(count) / 15))) // 総ページ数 (1ページ内にpostは15個まで表示)
+	if pageNum == 0 {
+		pageNum = 1
+	}
 	var pageSlice []int
 	if pageNum > 10 && page > pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 〜 最後のページの場合、最後のページ - 10 〜 最後のページを表示する
 		for i := pageNum - 9; i <= pageNum; i++ {

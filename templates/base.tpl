@@ -14,7 +14,7 @@
     </header>
     <main>
     {{ template "sidebar" . }}
-    {{ if eq .BoardType "career" }}
+    {{ if .PostList }}
       {{ template "board" . }}
     {{ else if .PostRead }}
       {{ template "postRead" . }}
