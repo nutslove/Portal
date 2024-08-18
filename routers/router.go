@@ -9,6 +9,7 @@ import (
 	"portal/models"
 	"portal/services"
 	"strconv"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -184,8 +185,10 @@ func SetupRouter(router *gin.Engine) {
 		})
 
 		career.POST("/posting", func(c *gin.Context) {
-			// session := sessions.Default(c)
-			// username := session.Get("username")
+			session := sessions.Default(c)
+			username := session.Get("username")
+
+			/////// 以下の処理は後でserviceとかに全部移す
 			var requestData RequestData
 
 			// リクエストボディをJSONとしてバインド
@@ -198,21 +201,31 @@ func SetupRouter(router *gin.Engine) {
 			}
 			fmt.Println("requestData:", requestData)
 
-			// データの処理（ここにビジネスロジックを追加）
-			// 例えば、データベースに保存する、ファイルに書き込むなど
+			addedPost := models.CareerBoard{
+				// Numberは主キーでautoIncrementオプションが有効になっていて指定しなくても自動で最後のレコードのNumber＋１でInsertしてくれる
+				Title:  "テスト", // ポスト入力ページにTitleの入力欄を追加し、入力必須とする
+				Author: username.(string),
+				Date:   time.Now(),
+				Count:  0,
+			}
+
+			result := db.Create(&addedPost)
+			if result.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": result.Error,
+				})
+				return
+			}
+
+			// fmt.Println("挿入されたレコードのNumber:", addedPost.Number)
+
+			///// OpenSearchにデータを入れる処理追加
 
 			c.JSON(http.StatusOK, gin.H{
 				"success":     true,
-				"redirectUrl": "/career/1?post=50", // DBに挿入後、Numberを取得し、post=のところに指定するように修正する
+				"redirectUrl": fmt.Sprintf("/career/1?post=%d", addedPost.Number),
 			})
-
-			// c.HTML(http.StatusOK, "index.tpl", gin.H{
-			// 	"IsLoggedIn":  username != nil,
-			// 	"Username":    username,
-			// 	"PostRead":    true,
-			// 	"PostContent": requestData,
-			// })
-			// return
 		})
 	}
 
