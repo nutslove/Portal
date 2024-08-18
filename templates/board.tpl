@@ -1,13 +1,14 @@
 {{ define "board" }}
 <div class="board">
   <h1>{{ .BoardName }}</h1>
-  <form action="/{{ .BoardType }}/search" method="get">
-    <input type="text" name="search" placeholder="Search post...">
+  <nav class="search">
+  <form action="/{{ .BoardType }}/searching" method="post">
+    {{/* <input type="text" name="search" placeholder="Search post..."> */}}
+    <input type="text" placeholder="Search post...">
     <button type="submit">検索</button>
   </form>
-  <form action="/{{ .BoardType }}/posting" method="get">
-    <button type="submit" name="posting" style="background-color: #1e90ff;color: white;">新規投稿</button>
-  </form>
+  <a href="/{{ .BoardType }}/posting" class="button">新規投稿</a>
+  </nav>
   <table>
     <thead>
       <tr>
