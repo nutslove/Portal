@@ -236,10 +236,29 @@ main {
     text-decoration: underline;
 }
 
-.post {
+.post-read {
     padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     align-items: center;
-    padding-top: 70px; /* 上部に余白を追加 */
+    padding-top: 30px; /* 上部に余白を追加 */
     width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
+}
+
+.post-write {
+    padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
+    align-items: center;
+    padding-top: 30px; /* 上部に余白を追加 */
+    width: 60%;
+    margin: 0 auto; /* 水平方向の中央揃え */
+}
+
+.post-title {
+    text-decoration: underline;
+    text-decoration-color: grey; /* 線の色 */
+    text-decoration-thickness: 1px; /* 線の太さ */
+    text-underline-offset: 10px; /* 文字からの距離 */
+    text-decoration-style: dotted; /* 点線にする */
+    font-size: 40px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }

@@ -1,9 +1,12 @@
 package routers
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"portal/config"
 	"portal/controllers"
 	"portal/middlewares"
 	"portal/models"
@@ -14,10 +17,13 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+	"github.com/opensearch-project/opensearch-go/v4/opensearchutil"
 )
 
 // ユーザからのPostの投稿内容
 type RequestData struct {
+	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
@@ -134,7 +140,7 @@ func SetupRouter(router *gin.Engine) {
 			username := session.Get("username")
 			postId := c.Query("post")
 			if postId != "" {
-				PostContent, err := services.GetCareerPostContent(postId)
+				PostContent, PostTitle, err := services.GetCareerPostContent(postId)
 				if err != nil {
 					controllers.NotFoundResponse(c)
 					return
@@ -145,6 +151,7 @@ func SetupRouter(router *gin.Engine) {
 					"Username":    username,
 					"PostRead":    true,
 					"PostContent": PostContent,
+					"PostTitle":   PostTitle,
 				})
 				return
 			}
@@ -203,7 +210,7 @@ func SetupRouter(router *gin.Engine) {
 
 			addedPost := models.CareerBoard{
 				// Numberは主キーでautoIncrementオプションが有効になっていて指定しなくても自動で最後のレコードのNumber＋１でInsertしてくれる
-				Title:  "テスト", // ポスト入力ページにTitleの入力欄を追加し、入力必須とする
+				Title:  requestData.Title,
 				Author: username.(string),
 				Date:   time.Now(),
 				Count:  0,
@@ -220,7 +227,44 @@ func SetupRouter(router *gin.Engine) {
 
 			// fmt.Println("挿入されたレコードのNumber:", addedPost.Number)
 
-			///// OpenSearchにデータを入れる処理追加
+			///// OpenSearchにデータを入れる処理
+			type Post struct {
+				Title  string `json:"title"`
+				Author string `json:"author"`
+				Post   string `json:"post"`
+			}
+
+			post := Post{
+				Title:  requestData.Title,
+				Author: username.(string),
+				Post:   requestData.Content,
+			}
+
+			client, err := config.OpensearchNewClient()
+			if err != nil {
+				log.Fatal("cannot initialize", err)
+			}
+
+			// ドキュメントの挿入
+			insertResp, err := client.Index(
+				context.Background(),
+				opensearchapi.IndexReq{
+					Index:      "career",
+					DocumentID: strconv.Itoa(addedPost.Number),
+					Body:       opensearchutil.NewJSONReader(&post),
+					Params: opensearchapi.IndexParams{
+						Refresh: "true",
+					},
+				})
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": err,
+				})
+				return
+			}
+			fmt.Printf("Created document in %s\n  ID: %s\n", insertResp.Index, insertResp.ID)
 
 			c.JSON(http.StatusOK, gin.H{
 				"success":     true,

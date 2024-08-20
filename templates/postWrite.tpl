@@ -1,5 +1,5 @@
 {{ define "postWrite" }}
-<div class="post">
+<div class="post-write">
     <div class="editor-wrapper">
         <div class="segmented-control">
             <input type="radio" name="sc-1-1" id="sc-1-1-1" checked>
@@ -7,8 +7,11 @@
             <label for="sc-1-1-1" data-value="Markdown">Markdown</label>
             <label for="sc-1-1-2" data-value="Preview">Preview</label>
         </div>
+        <div class="title">
+            <input id="title" type="text" placeholder="タイトルを入力" required>
+        </div>
         <div class="editor-container">
-            <textarea id="editor" placeholder="ここにMarkdownを入力してください"></textarea>
+            <textarea id="editor" placeholder="ここにMarkdownを入力してください" required></textarea>
             <div id="preview"></div>
         </div>
     </div>
@@ -48,11 +51,19 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        #title {
+            border: 2px solid #a0a0a0;
+            margin-bottom: 10px;
+            width: 45%;
+            border-radius: 4px;
+            height: 25px;
+            font-size: 14px;
+            padding-left: 10px; /* placeholderや入力文字の左側の余白 */
+        }
 
-        /* セグメントコントロールのスタイル */
         .segmented-control {
             position: absolute;
-            top: -45px;
+            {{/* top: -45px; */}}
             right: 0;
             width: 200px;
             border: 1px solid #deb887;
@@ -88,6 +99,7 @@
     </style>
     <script>
         const editor = document.getElementById('editor');
+        const title = document.getElementById('title');
         const preview = document.getElementById('preview');
         const submit = document.getElementById('submit');
         const loading = document.getElementById('loading');
@@ -123,11 +135,23 @@
         previewRadio.addEventListener('change', toggleView);
 
         submit.addEventListener('click', function() {
-            {{/* console.log('投稿内容:', editor.value); */}}
+            // バリデーションチェック
+            if (!title.value || !editor.value) {
+                alert('タイトルと本文を入力してください');
+                event.preventDefault(); // 送信を中止
+                return;
+            }
+            if (title.value.length > 100) {
+                alert('タイトルは100文字以内に入力してください')
+                event.preventDefault(); // 送信を中止
+                return;
+            }
+
             loading.style.display = 'block'; // ローディング表示
             submit.disabled = true; // ボタンを無効化
 
             const data = {
+                title: title.value,
                 content: editor.value
             };
 
