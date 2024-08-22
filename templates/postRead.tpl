@@ -2,6 +2,14 @@
 <div class="post-read">
     <h1 class="post-title">{{ .PostTitle }}</h1>
     <div id="preview"></div>
+    <div class=post-read-footer>
+        <span>
+            <a href=/>編集</a>
+        </span>
+        <span>
+            <a href=/>削除</a>
+        </span>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
     <script>
         function updatePreview() {

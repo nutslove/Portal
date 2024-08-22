@@ -3,12 +3,12 @@
     <a href=/><img src="/static/images/santa.png" alt="logo"></a>
     <a href=/ style="text-decoration: none;color: black"><h1>TechCareer Talk</h1></a>
     <nav>
-        <div style="padding-right: 15px">
+        {{/* <div style="padding-right: 15px">
             <a href="/about">About Me</a> <!--このサイトについて、なぜこのようなサイトを作ったのかなど-->
         </div>
         <div style="padding-right: 100px">
             <a href="/blog">Blog</a> <!--このサイトのサーバ構成や個人のブログとして使う-->
-        </div>
+        </div> */}}
         {{ if .IsLoggedIn }}
         <div>
             <span class="username">{{ .Username }}さん</span>

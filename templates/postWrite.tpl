@@ -1,22 +1,38 @@
 {{ define "postWrite" }}
 <div class="post-write">
     <div class="editor-wrapper">
-        <div class="segmented-control">
-            <input type="radio" name="sc-1-1" id="sc-1-1-1" checked>
-            <input type="radio" name="sc-1-1" id="sc-1-1-2">
-            <label for="sc-1-1-1" data-value="Markdown">Markdown</label>
-            <label for="sc-1-1-2" data-value="Preview">Preview</label>
+        <div class="title-segmented-wrapper">
+            <span class="segmented-control">
+                <input type="radio" name="sc-1-1" id="sc-1-1-1" checked>
+                <input type="radio" name="sc-1-1" id="sc-1-1-2">
+                <label for="sc-1-1-1" data-value="Markdown">Markdown</label>
+                <label for="sc-1-1-2" data-value="Preview">Preview</label>
+            </span>
+            <span class="title">
+                <input id="title" type="text" placeholder="タイトルを入力" required>
+            </span>
+
+
+
+            <span>
+                <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                <label for="file-upload" id="file-upload-label" class="upload-button">
+                    <img src="/static/images/image.png" alt="Upload Icon" class="upload-icon" height=30px style="margin-left: 20px;padding-right: 3px;">
+                </label>
+                <a href="https://gist.github.com/mignonstyle/083c9e1651d7734f84c99b8cf49d57fa" target="_blank">
+                    <img src="/static/images/hint.png" alt="hint" height=35px>
+                </a>
+            </span>
         </div>
-        <div class="title">
-            <input id="title" type="text" placeholder="タイトルを入力" required>
-        </div>
+
+
         <div class="editor-container">
             <textarea id="editor" placeholder="ここにMarkdownを入力してください" required></textarea>
             <div id="preview"></div>
         </div>
     </div>
     <div id="loading" style="display: none; text-align: center;">
-        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50" height="50">
+        <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." height="30">
     </div>
     <button id="submit">投稿</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
@@ -44,7 +60,7 @@
         #submit {
             display: block;
             margin: 20px auto;
-            padding: 10px 20px;
+            padding: 6px 20px;
             background-color: #2196F3;
             color: white;
             border: none;
@@ -53,15 +69,20 @@
         }
         #title {
             border: 2px solid #a0a0a0;
+            margin-top: 5px;
             margin-bottom: 10px;
-            width: 45%;
+            width: 270px;
             border-radius: 4px;
             height: 25px;
             font-size: 14px;
             padding-left: 10px; /* placeholderや入力文字の左側の余白 */
         }
 
+        .title-segmented-wrapper {
+            display: flex;
+        }
         .segmented-control {
+            margin-top: 5px;
             position: absolute;
             {{/* top: -45px; */}}
             right: 0;
@@ -96,6 +117,19 @@
             background: #fff;
             color: #333;
         }
+
+
+
+        .upload-button {
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+
+
+
     </style>
     <script>
         const editor = document.getElementById('editor');
@@ -184,6 +218,64 @@
 
             {{/* alert('投稿に失敗しました。時間をおいて再度試してください。'); */}}
         });
+
+
+
+
+
+
+
+        editor.addEventListener('dragover', function(event) {
+            event.preventDefault();
+            editor.style.border = "2px dashed #2196F3"; // ドラッグオーバー中のスタイル変更
+        });
+
+        editor.addEventListener('dragleave', function() {
+            editor.style.border = "2px solid #ddd"; // ドラッグが離れた時にスタイルを戻す
+        });
+
+        editor.addEventListener('drop', function(event) {
+            event.preventDefault();
+            editor.style.border = "2px solid #ddd"; // ドロップ後にスタイルを戻す
+
+            const files = event.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const imgMarkdown = `![alt text](${event.target.result})`;
+                        insertAtCursor(editor, imgMarkdown);
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('画像ファイルを選択してください。');
+                }
+            }
+        }
+
+        function insertAtCursor(textArea, text) {
+            const startPos = textArea.selectionStart;
+            const endPos = textArea.selectionEnd;
+            textArea.value = textArea.value.substring(0, startPos) + text + textArea.value.substring(endPos, textArea.value.length);
+        }
+
+
+
+
+
+
+
+
 
         // 初期プレビューの更新
         updatePreview();
