@@ -7,7 +7,9 @@
     <input type="text" placeholder="Search post...">
     <button type="submit">検索</button>
   </form>
+  {{ if .IsLoggedIn }}
   <a href="/{{ .BoardType }}/posting" class="button">新規投稿</a>
+  {{ end }}
   </nav>
   <table>
     <thead>

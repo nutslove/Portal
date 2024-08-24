@@ -122,7 +122,7 @@ func GetCareerPostsList(page int, db *gorm.DB) ([]map[string]interface{}, int, i
 	return formattedPosts, postNum, pageNum, pageSlice
 }
 
-func GetCareerPostContent(postId string) (string, string, error) {
+func GetCareerPostContent(postId string) (string, string, string, error) {
 	client, err := config.OpensearchNewClient()
 	if err != nil {
 		log.Fatal("cannot initialize", err)
@@ -182,9 +182,9 @@ func GetCareerPostContent(postId string) (string, string, error) {
 			// }
 		}
 		// fmt.Printf("Search indices: %s\n", strings.Join(indices, ","))
-		return post.Post, post.Title, nil
+		return post.Post, post.Title, post.Author, nil
 	} else {
-		return "", "", errors.New("not found")
+		return "", "", "", errors.New("not found")
 	}
 }
 

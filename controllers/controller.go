@@ -21,6 +21,12 @@ func NotFoundResponse(c *gin.Context) {
 	c.HTML(http.StatusNotFound, "404.html", nil)
 }
 
+func UnAuthorizedResponse(c *gin.Context) {
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"messages": "you need to login first!",
+	})
+}
+
 func RegisterCustomFunction(r *gin.Engine) {
 	funcMap := template.FuncMap{
 		"add": func(x, y int) int {

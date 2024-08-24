@@ -1,31 +1,28 @@
 {{ define "postWrite" }}
 <div class="post-write">
     <div class="editor-wrapper">
-        <div class="title-segmented-wrapper">
+        <div class="title-controls-wrapper">
+            <div class="title-upload-wrapper">
+                <span class="title">
+                    <input id="title" type="text" placeholder="タイトルを入力" required>
+                </span>
+                <span class="icon">
+                    <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                    <label for="file-upload" id="file-upload-label" class="upload-button">
+                        <img src="/static/images/image.png" alt="Upload Icon" class="upload-icon" height=30px style="margin-left: 20px;padding-right: 3px;">
+                    </label>
+                    <a href="https://gist.github.com/mignonstyle/083c9e1651d7734f84c99b8cf49d57fa" target="_blank">
+                        <img src="/static/images/hint.png" alt="hint" height=35px>
+                    </a>
+                </span>
+            </div>
             <span class="segmented-control">
                 <input type="radio" name="sc-1-1" id="sc-1-1-1" checked>
                 <input type="radio" name="sc-1-1" id="sc-1-1-2">
                 <label for="sc-1-1-1" data-value="Markdown">Markdown</label>
                 <label for="sc-1-1-2" data-value="Preview">Preview</label>
             </span>
-            <span class="title">
-                <input id="title" type="text" placeholder="タイトルを入力" required>
-            </span>
-
-
-
-            <span>
-                <input type="file" id="file-upload" accept="image/*" style="display: none;">
-                <label for="file-upload" id="file-upload-label" class="upload-button">
-                    <img src="/static/images/image.png" alt="Upload Icon" class="upload-icon" height=30px style="margin-left: 20px;padding-right: 3px;">
-                </label>
-                <a href="https://gist.github.com/mignonstyle/083c9e1651d7734f84c99b8cf49d57fa" target="_blank">
-                    <img src="/static/images/hint.png" alt="hint" height=35px>
-                </a>
-            </span>
         </div>
-
-
         <div class="editor-container">
             <textarea id="editor" placeholder="ここにMarkdownを入力してください" required></textarea>
             <div id="preview"></div>
@@ -39,8 +36,18 @@
     <style>
         .editor-wrapper {
             width: 90%;
-            margin: 20px auto;
+            margin: 10px auto;
             position: relative;
+        }
+        .title-controls-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .title-upload-wrapper {
+            display: flex;
+            align-items: center;
         }
         .editor-container {
             width: 100%;
@@ -69,23 +76,13 @@
         }
         #title {
             border: 2px solid #a0a0a0;
-            margin-top: 5px;
-            margin-bottom: 10px;
             width: 270px;
             border-radius: 4px;
             height: 25px;
             font-size: 14px;
-            padding-left: 10px; /* placeholderや入力文字の左側の余白 */
-        }
-
-        .title-segmented-wrapper {
-            display: flex;
+            padding-left: 10px;
         }
         .segmented-control {
-            margin-top: 5px;
-            position: absolute;
-            {{/* top: -45px; */}}
-            right: 0;
             width: 200px;
             border: 1px solid #deb887;
             border-radius: 20px;
@@ -117,19 +114,12 @@
             background: #fff;
             color: #333;
         }
-
-
-
         .upload-button {
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
-
-
-
-
     </style>
     <script>
         const editor = document.getElementById('editor');

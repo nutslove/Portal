@@ -140,7 +140,7 @@ func SetupRouter(router *gin.Engine) {
 			username := session.Get("username")
 			postId := c.Query("post")
 			if postId != "" {
-				PostContent, PostTitle, err := services.GetCareerPostContent(postId)
+				PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
 				if err != nil {
 					controllers.NotFoundResponse(c)
 					return
@@ -149,6 +149,7 @@ func SetupRouter(router *gin.Engine) {
 				c.HTML(http.StatusOK, "index.tpl", gin.H{
 					"IsLoggedIn":  username != nil,
 					"Username":    username,
+					"Author":      Author,
 					"PostRead":    true,
 					"PostContent": PostContent,
 					"PostTitle":   PostTitle,
@@ -272,6 +273,25 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 	}
+
+	career.DELETE("/posting", func(c *gin.Context) {
+		session := sessions.Default(c)
+		username := session.Get("username")
+		if username == nil {
+			controllers.UnAuthorizedResponse(c)
+			return
+		}
+		postId := c.Query("post")
+		if postId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"messages": "post number is missing!",
+			})
+			return
+		}
+
+		//// 削除処理実装
+		// PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
+	})
 
 	// user := router.Group("/users")
 
