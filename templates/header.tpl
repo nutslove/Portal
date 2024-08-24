@@ -10,12 +10,8 @@
             <a href="/blog">Blog</a> <!--このサイトのサーバ構成や個人のブログとして使う-->
         </div> */}}
         {{ if .IsLoggedIn }}
-        <div>
-            <span class="username">{{ .Username }}さん</span>
-        </div>
-        <div>
-            <a href="/logout" class="auth-link">Logout</a>
-        </div>
+        <span class="username">{{ .Username }}さん</span>
+        <a href="/logout" class="auth-link">Logout</a>
         {{ else }}
         <div>
             <a href="/signup" class="auth-link">SignUp</a>

@@ -57,11 +57,12 @@ main {
 .auth-link {
     text-decoration: underline !important;
     margin-left: 5px !important;
-    margin-right: 20px;
+    margin-right: 30px;
 }
 
 .username {
-    margin-right: 20px;
+    margin-right: 30px;
+    {{/* margin-bottom: 5px; */}}
 }
 
 .sidebar {

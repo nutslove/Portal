@@ -133,12 +133,12 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 
+		// Post一覧読み込み。"post"クエリパラメータがある場合はPostの読み込み
 		career.GET("/:page", func(c *gin.Context) {
-
 			// pageに文字列(string)が入っていたり、存在しないページを直接指定した場合404ページを返す
 			session := sessions.Default(c)
 			username := session.Get("username")
-			postId := c.Query("post")
+			postId := c.Query("post") // クエリパラメータ"post"がある場合はPost読み込み処理
 			if postId != "" {
 				PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
 				if err != nil {
@@ -150,9 +150,11 @@ func SetupRouter(router *gin.Engine) {
 					"IsLoggedIn":  username != nil,
 					"Username":    username,
 					"Author":      Author,
+					"PostId":      postId,
 					"PostRead":    true,
 					"PostContent": PostContent,
 					"PostTitle":   PostTitle,
+					"BoardType":   "career",
 				})
 				return
 			}
@@ -181,9 +183,15 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 
+		// Post書き込み画面
 		career.GET("/posting", func(c *gin.Context) {
 			session := sessions.Default(c)
 			username := session.Get("username")
+			// ログインせず直でURL指定してアクセスした場合、１ページにリダイレクトする
+			if username == nil {
+				c.Redirect(http.StatusFound, "/career/1")
+			}
+
 			c.HTML(http.StatusOK, "index.tpl", gin.H{
 				"IsLoggedIn": username != nil,
 				"Username":   username,
@@ -274,14 +282,14 @@ func SetupRouter(router *gin.Engine) {
 		})
 	}
 
-	career.DELETE("/posting", func(c *gin.Context) {
+	career.DELETE("/posting/:postId", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := session.Get("username")
 		if username == nil {
 			controllers.UnAuthorizedResponse(c)
 			return
 		}
-		postId := c.Query("post")
+		postId := c.Param("postId")
 		if postId == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"messages": "post number is missing!",
@@ -289,8 +297,21 @@ func SetupRouter(router *gin.Engine) {
 			return
 		}
 
-		//// 削除処理実装
+		//// test
+		c.JSON(http.StatusOK, gin.H{
+			"success":     true,
+			"redirectUrl": "/career/1",
+		})
+
+		///// postIdのDBレコードがなかったら404を返す処理
+
+		///// 削除処理実装
+		// 削除失敗時、javascriptのAlertで出す
+		// 削除ボタンクリック時、本当に削除するかjavascriptのAlertで確認する
+		// 削除ボタンをクリックすると、くるくる回って、削除処理が正常に完了したらPost一覧画面に遷移
+
 		// PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
+
 	})
 
 	// user := router.Group("/users")

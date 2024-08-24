@@ -76,14 +76,14 @@
         }
         #title {
             border: 2px solid #a0a0a0;
-            width: 270px;
+            width: 250px;
             border-radius: 4px;
             height: 25px;
             font-size: 14px;
             padding-left: 10px;
         }
         .segmented-control {
-            width: 200px;
+            width: 170px;
             border: 1px solid #deb887;
             border-radius: 20px;
             display: flex;
