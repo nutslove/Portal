@@ -23,7 +23,7 @@ import (
 func UserExistCheck(userid string, db *gorm.DB) bool {
 	user := models.UserData{Nickname: userid}
 	selectResult := db.Take(&user)
-	if selectResult.Error != nil {
+	if errors.Is(selectResult.Error, gorm.ErrRecordNotFound) {
 		return false
 	} else {
 		return true
@@ -217,6 +217,18 @@ func AddCareerPost(db *gorm.DB) {
 
 }
 
-func DeleteCareerPost() {
+func PostExistCheck(postId int, db *gorm.DB) bool {
+	post := models.CareerBoard{Number: postId}
+	selectResult := db.Take(&post)
+	if errors.Is(selectResult.Error, gorm.ErrRecordNotFound) {
+		return false
+	} else {
+		return true
+	}
+}
 
+func DeleteCareerPost(postId int, db *gorm.DB) {
+	post := models.CareerBoard{Number: postId}
+	result := db.Delete(&post)
+	fmt.Println("削除されたレコード数:", result.RowsAffected)
 }

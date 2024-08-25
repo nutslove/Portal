@@ -32,31 +32,37 @@
         deleteSubmit.addEventListener('click', function() {
             {{/* console.log("BoardType:",{{ .BoardType }})
             console.log("PostId:",{{ .PostId }}) */}}
-            loading.style.display = 'block'; // ローディング表示
-            deleteSubmit.disabled = true; // ボタンを無効化
 
-            fetch('/{{ .BoardType }}/posting/{{ .PostId }}', {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(result => {
-                loading.style.display = 'none'; // ローディング非表示
-                deleteSubmit.disabled = false; // ボタンを有効化
+            let result = confirm("本当に削除しますか？")
 
-                if (result.success) {
-                    // 成功時の処理
-                    window.location.href = result.redirectUrl; // リダイレクト先のURLを指定
-                } else {
-                    // 失敗時の処理
-                    alert('エラーが発生しました: ' + result.message);
-                }
-            })
-            .catch(error => {
-                loading.style.display = 'none'; // ローディング非表示
-                deleteSubmit.disabled = false; // ボタンを有効化
+            // OKを押した時のみ削除処理を実行
+            if (result) {
+                loading.style.display = 'block'; // ローディング表示
+                deleteSubmit.disabled = true; // ボタンを無効化
 
-                alert('リクエストに失敗しました: ' + error.message);
-            });
+                fetch('/{{ .BoardType }}/posting/{{ .PostId }}', {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(result => {
+                    loading.style.display = 'none'; // ローディング非表示
+                    deleteSubmit.disabled = false; // ボタンを有効化
+
+                    if (result.success) {
+                        // 成功時の処理
+                        window.location.href = result.redirectUrl; // リダイレクト先のURLを指定
+                    } else {
+                        // 失敗時の処理
+                        alert('削除に失敗しました: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none'; // ローディング非表示
+                    deleteSubmit.disabled = false; // ボタンを有効化
+
+                    alert('リクエストに失敗しました: ' + error.message);
+                });
+            }
         });
 
         updatePreview();

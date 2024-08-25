@@ -297,21 +297,30 @@ func SetupRouter(router *gin.Engine) {
 			return
 		}
 
-		//// test
-		c.JSON(http.StatusOK, gin.H{
-			"success":     true,
-			"redirectUrl": "/career/1",
-		})
+		postIdInt, err := strconv.Atoi(postId)
+		if err != nil {
+			log.Fatal("cannot convert postId(string) to int:", err)
+			return
+		}
+		if !(services.PostExistCheck(postIdInt, db)) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"seccess": false,
+				"message": "該当Postが存在しません",
+			})
+			return
+		}
 
-		///// postIdのDBレコードがなかったら404を返す処理
+		services.DeleteCareerPost(postIdInt, db)
 
 		///// 削除処理実装
-		// 削除失敗時、javascriptのAlertで出す
-		// 削除ボタンクリック時、本当に削除するかjavascriptのAlertで確認する
-		// 削除ボタンをクリックすると、くるくる回って、削除処理が正常に完了したらPost一覧画面に遷移
+		// 【完】削除失敗時、javascriptのAlertで出す
+		// 【完】削除ボタンクリック時、本当に削除するかjavascriptのAlertで確認する
+		// 【完】削除ボタンをクリックすると、くるくる回って、削除処理が正常に完了したらPost一覧画面に遷移
 
-		// PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
-
+		c.JSON(http.StatusOK, gin.H{
+			"success":     true,
+			"redirectUrl": "/career",
+		})
 	})
 
 	// user := router.Group("/users")
