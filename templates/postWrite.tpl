@@ -4,7 +4,7 @@
         <div class="title-controls-wrapper">
             <div class="title-upload-wrapper">
                 <span class="title">
-                    <input id="title" type="text" placeholder="タイトルを入力" required>
+                    <input id="title" type="text" placeholder="タイトルを入力" {{ if .PostTitle }} value={{ .PostTitle }} {{ end }} required>
                 </span>
                 <span class="icon">
                     <input type="file" id="file-upload" accept="image/*" style="display: none;">
@@ -24,7 +24,7 @@
             </span>
         </div>
         <div class="editor-container">
-            <textarea id="editor" placeholder="ここにMarkdownを入力してください" required></textarea>
+            <textarea id="editor" placeholder="ここにMarkdownを入力してください" required>{{- if .PostContent }} {{ .PostContent }} {{- end }}</textarea>
             <div id="preview"></div>
         </div>
     </div>
@@ -32,7 +32,8 @@
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." height="30">
     </div>
     <button id="submit">投稿</button>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <script src="/static/javascript/markdown.js"></script>
+    {{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script> */}}
     <style>
         .editor-wrapper {
             width: 90%;

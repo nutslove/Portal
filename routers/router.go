@@ -189,7 +189,7 @@ func SetupRouter(router *gin.Engine) {
 			username := session.Get("username")
 			// ログインせず直でURL指定してアクセスした場合、１ページにリダイレクトする
 			if username == nil {
-				c.Redirect(http.StatusFound, "/career/1")
+				c.Redirect(http.StatusFound, "/career/")
 			}
 
 			c.HTML(http.StatusOK, "index.tpl", gin.H{
@@ -203,6 +203,11 @@ func SetupRouter(router *gin.Engine) {
 		career.POST("/posting", func(c *gin.Context) {
 			session := sessions.Default(c)
 			username := session.Get("username")
+
+			if username == nil {
+				controllers.UnAuthorizedResponse(c)
+				return
+			}
 
 			/////// 以下の処理は後でserviceとかに全部移す
 			var requestData RequestData
@@ -292,7 +297,8 @@ func SetupRouter(router *gin.Engine) {
 		postId := c.Param("postId")
 		if postId == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"messages": "post number is missing!",
+				"seccess": false,
+				"message": "post number is missing!",
 			})
 			return
 		}
@@ -312,14 +318,29 @@ func SetupRouter(router *gin.Engine) {
 
 		services.DeleteCareerPost(postIdInt, db)
 
-		///// 削除処理実装
-		// 【完】削除失敗時、javascriptのAlertで出す
-		// 【完】削除ボタンクリック時、本当に削除するかjavascriptのAlertで確認する
-		// 【完】削除ボタンをクリックすると、くるくる回って、削除処理が正常に完了したらPost一覧画面に遷移
-
 		c.JSON(http.StatusOK, gin.H{
 			"success":     true,
 			"redirectUrl": "/career",
+		})
+	})
+
+	career.PATCH("/posting/:postId", func(c *gin.Context) {
+		session := sessions.Default(c)
+		username := session.Get("username")
+		postId := c.Param("postId")
+		if username == nil {
+			controllers.UnAuthorizedResponse(c)
+			return
+		}
+
+		PostContent, PostTitle, _, _ := services.GetCareerPostContent(postId)
+		c.HTML(http.StatusOK, "index.tpl", gin.H{
+			"IsLoggedIn":  username != nil,
+			"Username":    username,
+			"PostWrite":   true,
+			"PostTitle":   PostTitle,
+			"PostContent": PostContent,
+			"BoardType":   "career",
 		})
 	})
 

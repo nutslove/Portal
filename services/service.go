@@ -230,5 +230,24 @@ func PostExistCheck(postId int, db *gorm.DB) bool {
 func DeleteCareerPost(postId int, db *gorm.DB) {
 	post := models.CareerBoard{Number: postId}
 	result := db.Delete(&post)
-	fmt.Println("削除されたレコード数:", result.RowsAffected)
+	fmt.Println("DBから削除されたレコード数:", result.RowsAffected)
+
+	client, err := config.OpensearchNewClient()
+	if err != nil {
+		log.Fatal("cannot initialize", err)
+	}
+
+	ctx := context.Background()
+	postIdstr := strconv.Itoa(postId)
+
+	deleteReq := opensearchapi.DocumentDeleteReq{
+		Index:      "career",
+		DocumentID: postIdstr,
+	}
+
+	deleteResponse, err := client.Document.Delete(ctx, deleteReq)
+	if err != nil {
+		log.Printf("WARNING: OpenSearchからDocumentID[%d]のデータ削除に失敗しました\n", postId)
+	}
+	fmt.Println("deleteResponse:", deleteResponse)
 }

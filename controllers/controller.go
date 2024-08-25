@@ -23,7 +23,8 @@ func NotFoundResponse(c *gin.Context) {
 
 func UnAuthorizedResponse(c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, gin.H{
-		"messages": "you need to login first!",
+		"result":  false,
+		"message": "you need to login first!",
 	})
 }
 
