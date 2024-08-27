@@ -133,31 +133,12 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 
-		// Post一覧読み込み。"post"クエリパラメータがある場合はPostの読み込み
+		// Post一覧読み込み。
 		career.GET("/:page", func(c *gin.Context) {
 			// pageに文字列(string)が入っていたり、存在しないページを直接指定した場合404ページを返す
 			session := sessions.Default(c)
 			username := session.Get("username")
-			postId := c.Query("post") // クエリパラメータ"post"がある場合はPost読み込み処理
-			if postId != "" {
-				PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
-				if err != nil {
-					controllers.NotFoundResponse(c)
-					return
-				}
-				// fmt.Println("post番号:", post)
-				c.HTML(http.StatusOK, "index.tpl", gin.H{
-					"IsLoggedIn":  username != nil,
-					"Username":    username,
-					"Author":      Author,
-					"PostId":      postId,
-					"PostRead":    true,
-					"PostContent": PostContent,
-					"PostTitle":   PostTitle,
-					"BoardType":   "career",
-				})
-				return
-			}
+
 			page := c.Param("page")
 			pageInt, err := strconv.Atoi(page)
 			if err != nil {
@@ -183,7 +164,7 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 
-		// Post書き込み画面
+		// 新規Post書き込み画面
 		career.GET("/posting", func(c *gin.Context) {
 			session := sessions.Default(c)
 			username := session.Get("username")
@@ -200,6 +181,50 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 
+		// 既存Post読み込み/修正画面
+		career.GET("/posting/:postId", func(c *gin.Context) {
+			session := sessions.Default(c)
+			username := session.Get("username")
+
+			postId := c.Param("postId")
+			PostContent, PostTitle, Author, err := services.GetCareerPostContent(postId)
+			if err != nil {
+				controllers.NotFoundResponse(c)
+				return
+			}
+
+			// URLパラメータに"modify=true"が設定されている場合は既存Postの修正
+			if is_modify := c.Query("modify"); is_modify == "true" {
+				if username == nil || username != Author {
+					c.Redirect(http.StatusFound, "/career/")
+				}
+
+				c.HTML(http.StatusOK, "index.tpl", gin.H{
+					"IsLoggedIn":  username != nil,
+					"Username":    username,
+					"PostWrite":   true,
+					"BoardType":   "career",
+					"PostContent": PostContent,
+					"PostTitle":   PostTitle,
+					"PostId":      postId,
+					"Modify":      true,
+				})
+				return
+			}
+
+			c.HTML(http.StatusOK, "index.tpl", gin.H{
+				"IsLoggedIn":  username != nil,
+				"Username":    username,
+				"Author":      Author,
+				"PostId":      postId,
+				"PostRead":    true,
+				"PostContent": PostContent,
+				"PostTitle":   PostTitle,
+				"BoardType":   "career",
+			})
+		})
+
+		// 新規Post登録
 		career.POST("/posting", func(c *gin.Context) {
 			session := sessions.Default(c)
 			username := session.Get("username")
@@ -282,67 +307,149 @@ func SetupRouter(router *gin.Engine) {
 
 			c.JSON(http.StatusOK, gin.H{
 				"success":     true,
-				"redirectUrl": fmt.Sprintf("/career/1?post=%d", addedPost.Number),
+				"redirectUrl": fmt.Sprintf("/career/posting/%d", addedPost.Number),
 			})
+		})
+
+		career.DELETE("/posting/:postId", func(c *gin.Context) {
+			session := sessions.Default(c)
+			username := session.Get("username")
+			if username == nil {
+				controllers.UnAuthorizedResponse(c)
+				return
+			}
+			postId := c.Param("postId")
+			if postId == "" {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"seccess": false,
+					"message": "post number is missing!",
+				})
+				return
+			}
+
+			postIdInt, err := strconv.Atoi(postId)
+			if err != nil {
+				log.Fatal("cannot convert postId(string) to int:", err)
+				return
+			}
+			if !(services.PostExistCheck(postIdInt, db)) {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"seccess": false,
+					"message": "該当Postが存在しません",
+				})
+				return
+			}
+
+			services.DeleteCareerPost(postIdInt, db)
+
+			c.JSON(http.StatusOK, gin.H{
+				"success":     true,
+				"redirectUrl": "/career",
+			})
+		})
+
+		// 既存Post内容修正
+		career.PATCH("/posting/:postId", func(c *gin.Context) {
+			fmt.Println("PATCHメソッド処理!!!")
+
+			session := sessions.Default(c)
+			username := session.Get("username")
+			// postId := c.Param("postId")
+			if username == nil {
+				controllers.UnAuthorizedResponse(c)
+				return
+			}
+
+			//// Titleが変わっていたらDBとOpenSearch内のTitleを更新する
+			//// OpenSearchの当該idのpostを更新する
+
+			/////// 以下の処理は後でserviceとかに全部移す
+			var requestData RequestData
+
+			// リクエストボディをJSONとしてバインド
+			if err := c.ShouldBindJSON(&requestData); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": "Invalid request data",
+				})
+				return
+			}
+			fmt.Println("requestData:", requestData)
+
+			addedPost := models.CareerBoard{
+				// Numberは主キーでautoIncrementオプションが有効になっていて指定しなくても自動で最後のレコードのNumber＋１でInsertしてくれる
+				Title:  requestData.Title,
+				Author: username.(string),
+				Date:   time.Now(),
+				Count:  0,
+			}
+
+			result := db.Create(&addedPost)
+			if result.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": result.Error,
+				})
+				return
+			}
+
+			// fmt.Println("挿入されたレコードのNumber:", addedPost.Number)
+
+			///// OpenSearchにデータを入れる処理
+			type Post struct {
+				Title  string `json:"title"`
+				Author string `json:"author"`
+				Post   string `json:"post"`
+			}
+
+			post := Post{
+				Title:  requestData.Title,
+				Author: username.(string),
+				Post:   requestData.Content,
+			}
+
+			client, err := config.OpensearchNewClient()
+			if err != nil {
+				log.Fatal("cannot initialize", err)
+			}
+
+			// ドキュメントの挿入
+			insertResp, err := client.Index(
+				context.Background(),
+				opensearchapi.IndexReq{
+					Index:      "career",
+					DocumentID: strconv.Itoa(addedPost.Number),
+					Body:       opensearchutil.NewJSONReader(&post),
+					Params: opensearchapi.IndexParams{
+						Refresh: "true",
+					},
+				})
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"success": false,
+					"message": err,
+				})
+				return
+			}
+			fmt.Printf("Created document in %s\n  ID: %s\n", insertResp.Index, insertResp.ID)
+
+			c.JSON(http.StatusOK, gin.H{
+				"success":     true,
+				"redirectUrl": fmt.Sprintf("/career/posting/%d", addedPost.Number),
+			})
+
+			// PostContent, PostTitle, _, _ := services.GetCareerPostContent(postId)
+			// c.HTML(http.StatusOK, "index.tpl", gin.H{
+			// 	"IsLoggedIn":  username != nil,
+			// 	"Username":    username,
+			// 	"PostWrite":   true,
+			// 	"PostTitle":   PostTitle,
+			// 	"PostContent": PostContent,
+			// 	"BoardType":   "career",
+			// })
 		})
 	}
-
-	career.DELETE("/posting/:postId", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := session.Get("username")
-		if username == nil {
-			controllers.UnAuthorizedResponse(c)
-			return
-		}
-		postId := c.Param("postId")
-		if postId == "" {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"seccess": false,
-				"message": "post number is missing!",
-			})
-			return
-		}
-
-		postIdInt, err := strconv.Atoi(postId)
-		if err != nil {
-			log.Fatal("cannot convert postId(string) to int:", err)
-			return
-		}
-		if !(services.PostExistCheck(postIdInt, db)) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"seccess": false,
-				"message": "該当Postが存在しません",
-			})
-			return
-		}
-
-		services.DeleteCareerPost(postIdInt, db)
-
-		c.JSON(http.StatusOK, gin.H{
-			"success":     true,
-			"redirectUrl": "/career",
-		})
-	})
-
-	career.PATCH("/posting/:postId", func(c *gin.Context) {
-		session := sessions.Default(c)
-		username := session.Get("username")
-		postId := c.Param("postId")
-		if username == nil {
-			controllers.UnAuthorizedResponse(c)
-			return
-		}
-
-		PostContent, PostTitle, _, _ := services.GetCareerPostContent(postId)
-		c.HTML(http.StatusOK, "index.tpl", gin.H{
-			"IsLoggedIn":  username != nil,
-			"Username":    username,
-			"PostWrite":   true,
-			"PostTitle":   PostTitle,
-			"PostContent": PostContent,
-			"BoardType":   "career",
-		})
-	})
 
 	// user := router.Group("/users")
 

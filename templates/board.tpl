@@ -26,7 +26,8 @@
       <tr>
         <td style="width: 10%;text-align: center;">{{ .Number }}</td>
         <td style="width: 47%;">
-          <a class="postlist" href="/{{ $.BoardType }}/{{ $.page }}?post={{ .Number }}">
+          {{/* <a class="postlist" href="/{{ $.BoardType }}/{{ $.page }}?post={{ .Number }}"> */}}
+          <a class="postlist" href="/{{ $.BoardType }}/posting/{{ .Number }}">
           {{ .Title }}
           </a>
         </td>

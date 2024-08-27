@@ -7,7 +7,7 @@
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." height="30">
     </div>
     <div class="post-read-footer">
-        <button id="modify" class="modify">編集</a>
+        <a href="/{{ .BoardType }}/posting/{{ .PostId }}?modify=true" class="modify">編集</a>
         <button id="delete" class="delete">削除</a>
     </div>
     {{ end }}
@@ -15,7 +15,6 @@
     {{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script> */}}
     <script>
         const loading = document.getElementById('loading')
-        const modifySubmit = document.getElementById('modify')
         const deleteSubmit = document.getElementById('delete')
 
         function updatePreview() {
@@ -24,36 +23,6 @@
         }
 
         updatePreview();
-
-        // 修正ボタン処理
-        modifySubmit.addEventListener('click', function() {
-            loading.style.display = 'block'; // ローディング表示
-            modifySubmit.disabled = true; // ボタンを無効化
-
-            fetch('/{{ .BoardType }}/posting/{{ .PostId }}', {
-                method: 'PATCH'
-            })
-            .then(response => {
-                {{/* if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                } */}}
-                return response.text(); // HTMLレスポンスをテキストとして取得
-            })
-            .then(html => {
-                // 受け取ったHTMLで現在のページを置き換える
-                document.open();
-                document.write(html);
-                document.close();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('リクエストに失敗しました: ' + error.message);
-            })
-            .finally(() => {
-                loading.style.display = 'none';
-                modifySubmit.disabled = false;
-            });
-        });
 
         // 削除ボタン処理
         deleteSubmit.addEventListener('click', function() {
@@ -117,6 +86,8 @@
         border-radius: 4px;
         border: none;
         cursor: pointer;
+        text-decoration: none;
+        font-size: 15px;
     }
     .delete {
         margin-left: 10px;

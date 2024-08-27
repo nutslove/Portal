@@ -24,14 +24,17 @@
             </span>
         </div>
         <div class="editor-container">
-            <textarea id="editor" placeholder="ここにMarkdownを入力してください" required>{{- if .PostContent }} {{ .PostContent }} {{- end }}</textarea>
+            <textarea id="editor" placeholder="ここにMarkdownを入力してください" required>{{- if .PostContent -}}{{- .PostContent -}}{{- end }}</textarea>
             <div id="preview"></div>
         </div>
     </div>
     <div id="loading" style="display: none; text-align: center;">
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." height="30">
     </div>
-    <button id="submit">投稿</button>
+    <button id="submit">{{ if .Modify }} 更新 {{ else }} 投稿 {{ end }}</button>
+    {{ if .Modify }}
+    <a href="/{{ .BoardType }}/posting/{{ .PostId }}">キャンセル</a>
+    {{ end }}
     <script src="/static/javascript/markdown.js"></script>
     {{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script> */}}
     <style>
@@ -159,6 +162,10 @@
         markdownRadio.addEventListener('change', toggleView);
         previewRadio.addEventListener('change', toggleView);
 
+        // 初期プレビューの更新
+        updatePreview();
+        toggleView(); // 初期状態の設定
+
         submit.addEventListener('click', function() {
             // バリデーションチェック
             if (!title.value || !editor.value) {
@@ -179,9 +186,11 @@
                 title: title.value,
                 content: editor.value
             };
+            const method = {{ .Modify }} ? 'PATCH' : 'POST';
+            const url = {{ .Modify }} ? '/{{ .BoardType }}/posting/{{ .PostId }}' : '/{{ .BoardType }}/posting';
 
-            fetch('/{{ .BoardType }}/posting', {
-                method: 'POST',
+            fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -262,15 +271,6 @@
 
 
 
-
-
-
-
-
-
-        // 初期プレビューの更新
-        updatePreview();
-        toggleView(); // 初期状態の設定
     </script>
 </div>
 {{ end }}
