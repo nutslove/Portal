@@ -31,10 +31,12 @@
     <div id="loading" style="display: none; text-align: center;">
         <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." height="30">
     </div>
-    <button id="submit">{{ if .Modify }} 更新 {{ else }} 投稿 {{ end }}</button>
+    <div class="modify-cancel-button">
+    <span><button id="submit">{{ if .Modify }} 更新 {{ else }} 投稿 {{ end }}</button></span>
     {{ if .Modify }}
-    <a href="/{{ .BoardType }}/posting/{{ .PostId }}">キャンセル</a>
+    <span><a href="/{{ .BoardType }}/posting/{{ .PostId }}" class="cancel">キャンセル</a></span>
     {{ end }}
+    </div>
     <script src="/static/javascript/markdown.js"></script>
     {{/* <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script> */}}
     <style>
@@ -68,16 +70,16 @@
         }
         #editor, #preview { resize: vertical; }
         #preview { overflow-y: auto; display: none; }
-        #submit {
-            display: block;
-            margin: 20px auto;
-            padding: 6px 20px;
+        {{/* #submit {
+            margin-right: 10px;
+            margin-top: 10px;
+            padding: 5px 20px;
             background-color: #2196F3;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-        }
+        } */}}
         #title {
             border: 2px solid #a0a0a0;
             width: 250px;
@@ -123,6 +125,33 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+        }
+
+        #submit, .cancel {
+            margin-top: 5px;
+            display: inline-block;
+            padding: 6px 20px;
+            color: white;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+
+        #submit {
+            background-color: #2196F3;
+        }
+
+        .cancel {
+            background-color: #a0a0a0;
+            margin-left: 10px;
+        }
+
+        .modify-cancel-button {
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
     <script>

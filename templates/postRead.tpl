@@ -78,25 +78,25 @@
         text-align: center;
     }
 
-    .modify {
-        margin-right: 10px;
+    .modify, .delete {
+        display: inline-block;
         padding: 6px 20px;
-        background-color: #2196F3;
         color: white;
         border-radius: 4px;
         border: none;
         cursor: pointer;
         text-decoration: none;
-        font-size: 15px;
+        font-size: 16px;
+        vertical-align: middle;
     }
+
+    .modify {
+        background-color: #2196F3;
+    }
+
     .delete {
         margin-left: 10px;
-        padding: 6px 20px;
-        background-color: red;
-        color: white;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
+        background-color: #ff6666;
     }
     </style>
 </div>

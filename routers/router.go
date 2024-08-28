@@ -350,11 +350,9 @@ func SetupRouter(router *gin.Engine) {
 
 		// 既存Post内容修正
 		career.PATCH("/posting/:postId", func(c *gin.Context) {
-			fmt.Println("PATCHメソッド処理!!!")
-
 			session := sessions.Default(c)
 			username := session.Get("username")
-			// postId := c.Param("postId")
+			postId := c.Param("postId")
 			if username == nil {
 				controllers.UnAuthorizedResponse(c)
 				return
@@ -376,15 +374,19 @@ func SetupRouter(router *gin.Engine) {
 			}
 			fmt.Println("requestData:", requestData)
 
-			addedPost := models.CareerBoard{
-				// Numberは主キーでautoIncrementオプションが有効になっていて指定しなくても自動で最後のレコードのNumber＋１でInsertしてくれる
-				Title:  requestData.Title,
-				Author: username.(string),
-				Date:   time.Now(),
-				Count:  0,
+			postIdInt, err := strconv.Atoi(postId)
+			if err != nil {
+				log.Fatal("cannot convert postId(string) to int:", err)
+				return
 			}
 
-			result := db.Create(&addedPost)
+			postForDB := models.CareerBoard{
+				Number: postIdInt,
+				Title:  requestData.Title,
+				Date:   time.Now(),
+			}
+
+			result := db.Updates(&postForDB)
 			if result.Error != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"success": false,
@@ -402,10 +404,18 @@ func SetupRouter(router *gin.Engine) {
 				Post   string `json:"post"`
 			}
 
-			post := Post{
+			type UpdateRequest struct {
+				Doc Post `json:"doc"`
+			}
+
+			postForOpensearch := Post{
 				Title:  requestData.Title,
 				Author: username.(string),
 				Post:   requestData.Content,
+			}
+
+			updatedPost := UpdateRequest{
+				Doc: postForOpensearch,
 			}
 
 			client, err := config.OpensearchNewClient()
@@ -413,41 +423,33 @@ func SetupRouter(router *gin.Engine) {
 				log.Fatal("cannot initialize", err)
 			}
 
-			// ドキュメントの挿入
-			insertResp, err := client.Index(
+			// ドキュメントの更新
+			updateResp, err := client.Update(
 				context.Background(),
-				opensearchapi.IndexReq{
+				opensearchapi.UpdateReq{
 					Index:      "career",
-					DocumentID: strconv.Itoa(addedPost.Number),
-					Body:       opensearchutil.NewJSONReader(&post),
-					Params: opensearchapi.IndexParams{
+					DocumentID: postId,
+					Body:       opensearchutil.NewJSONReader(&updatedPost),
+					Params: opensearchapi.UpdateParams{
 						Refresh: "true",
 					},
 				})
 
+			// fmt.Println("OpenSearch updateResp:", updateResp)
 			if err != nil {
+				fmt.Println("OpenSearch Update err:", err)
 				c.JSON(http.StatusBadRequest, gin.H{
 					"success": false,
 					"message": err,
 				})
 				return
 			}
-			fmt.Printf("Created document in %s\n  ID: %s\n", insertResp.Index, insertResp.ID)
+			fmt.Printf("Updated document in %s\n  ID: %s\n", updateResp.Index, updateResp.ID)
 
 			c.JSON(http.StatusOK, gin.H{
 				"success":     true,
-				"redirectUrl": fmt.Sprintf("/career/posting/%d", addedPost.Number),
+				"redirectUrl": fmt.Sprintf("/career/posting/%d", postForDB.Number),
 			})
-
-			// PostContent, PostTitle, _, _ := services.GetCareerPostContent(postId)
-			// c.HTML(http.StatusOK, "index.tpl", gin.H{
-			// 	"IsLoggedIn":  username != nil,
-			// 	"Username":    username,
-			// 	"PostWrite":   true,
-			// 	"PostTitle":   PostTitle,
-			// 	"PostContent": PostContent,
-			// 	"BoardType":   "career",
-			// })
 		})
 	}
 
