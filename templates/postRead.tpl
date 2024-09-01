@@ -1,6 +1,12 @@
 {{ define "postRead" }}
 <div class="post-read">
     <h1 class="post-title">{{ .PostTitle }}</h1>
+    <h5 class="post-author">投稿者: {{ .Author }}</h5>
+    {{ if eq .CreatedAt .ModifiedAt }}
+    <h5 class="post-date">投稿日: {{ .CreatedAt }}</h5>
+    {{ else }}
+    <h5 class="post-date">投稿日: {{ .CreatedAt }}&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp最終更新日: {{ .ModifiedAt }}</h5>
+    {{ end }}
     <div id="preview"></div>
     {{ if and (.IsLoggedIn) (eq .Username .Author) }}
     <div id="loading" style="display: none; text-align: center;">
@@ -9,6 +15,12 @@
     <div class="post-read-footer">
         <a href="/{{ .BoardType }}/posting/{{ .PostId }}?modify=true" class="modify">編集</a>
         <button id="delete" class="delete">削除</a>
+    </div>
+    <div class="post-comments">
+        <div class="comments-header">
+            <div class="comments">
+            </div>
+        </div>
     </div>
     {{ end }}
     <script src="/static/javascript/markdown.js"></script>

@@ -14,7 +14,9 @@
     </header>
     <main>
     {{ template "sidebar" . }}
-    {{ if .PostList }}
+    {{ if .TopPage }}
+      {{ template "topPage" }}
+    {{ else if .PostList }}
       {{ template "board" . }}
     {{ else if .PostRead }}
       {{ template "postRead" . }}

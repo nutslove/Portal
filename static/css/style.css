@@ -108,7 +108,7 @@ main {
     margin-top: -35px; /* 最初のli要素を上に移動 */
 }
 
-.board {
+.board, .toppage {
     padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     align-items: center;
     padding-top: 30px; /* 上部に余白を追加 */
@@ -240,7 +240,7 @@ main {
 .post-read {
     padding-left: 96px; /* .sidebarのwidthと合わせること！ そうしないとテーブルが中央からずれる*/
     align-items: center;
-    padding-top: 30px; /* 上部に余白を追加 */
+    /*padding-top: 30px; /* 上部に余白を追加 */
     width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
 }
@@ -262,4 +262,15 @@ main {
     font-size: 40px;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    margin-bottom: 15px;
+}
+
+.post-author {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.post-date {
+    margin-top: 0px;
+    margin-bottom: 5px;
 }

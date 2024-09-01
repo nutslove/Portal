@@ -18,19 +18,29 @@ type UserData struct {
 }
 
 type CareerBoard struct {
-	Number int       `gorm:"primaryKey;column:num"`
-	Title  string    `gorm:"size:100;column:title"`
-	Author string    `gorm:"size:30;column:author"`
-	Date   time.Time `gorm:"type:datetime;column:date"`
-	Count  int       `gorm:"column:count"`
+	Number     int       `gorm:"primaryKey;column:num"`
+	Title      string    `gorm:"size:100;column:title"`
+	Author     string    `gorm:"size:30;column:author"`
+	CreatedAt  time.Time `gorm:"type:datetime;column:createdat"`
+	ModifiedAt time.Time `gorm:"type:datetime;column:modifiedat"`
+	// Count      int       `gorm:"column:count"`
 }
 
 type AnythingBoard struct {
-	Number int       `gorm:"primaryKey;column:num"`
-	Title  string    `gorm:"size:100;column:title"`
-	Author string    `gorm:"size:30;column:author"`
-	Date   time.Time `gorm:"type:datetime;column:date"`
-	Count  int       `gorm:"column:count"`
+	Number     int       `gorm:"primaryKey;column:num"`
+	Title      string    `gorm:"size:100;column:title"`
+	Author     string    `gorm:"size:30;column:author"`
+	CreatedAt  time.Time `gorm:"type:datetime;column:createdat"`
+	ModifiedAt time.Time `gorm:"type:datetime;column:modifiedat"`
+	// Count      int       `gorm:"column:count"`
+}
+
+type CareerBoardComment struct {
+	ID            int       `gorm:"primaryKey;column:id"`
+	Number        int       `gorm:";column:num"`
+	Author        string    `gorm:"size:30;column:author"`
+	Date          time.Time `gorm:"type:datetime;column:date"`
+	CommentNumber int       `gorm:":column:commentnum"`
 }
 
 var (
@@ -48,5 +58,6 @@ func ConnectDB() *gorm.DB {
 	db.AutoMigrate(&UserData{})
 	db.AutoMigrate(&CareerBoard{})
 	db.AutoMigrate(&AnythingBoard{})
+	db.AutoMigrate(&CareerBoardComment{})
 	return db
 }

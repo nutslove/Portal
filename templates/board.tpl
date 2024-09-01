@@ -2,9 +2,9 @@
 <div class="board">
   <h1>{{ .BoardName }}</h1>
   <nav class="search">
-  <form action="/{{ .BoardType }}/searching" method="post">
+  <form action="/{{ .BoardType }}/search" method="get">
     {{/* <input type="text" name="search" placeholder="Search post..."> */}}
-    <input type="text" placeholder="Search post...">
+    <input type="text" name="query" placeholder="Search post...">
     <button type="submit">検索</button>
   </form>
   {{ if .IsLoggedIn }}
@@ -18,7 +18,7 @@
         <th style="width: 47%;text-align: center;">題名</th>
         <th style="width: 15%;text-align: center;">作成者</th>
         <th style="width: 18%;text-align: center;">作成日</th>
-        <th style="width: 10%;text-align: center;">閲覧数</th>
+        {{/* <th style="width: 10%;text-align: center;">閲覧数</th> */}}
       </tr>
     </thead>
     <tbody>
@@ -32,8 +32,8 @@
           </a>
         </td>
         <td style="width: 15%;">{{ .Author }}</td>
-        <td style="width: 18%;">{{ .Date }}</td>
-        <td style="width: 10%;text-align: center;">{{ .Count }}</td>
+        <td style="width: 18%;">{{ .CreatedAt }}</td>
+        {{/* <td style="width: 10%;text-align: center;">{{ .Count }}</td> */}}
       </tr>
       {{ end }}
     </tbody>
@@ -50,7 +50,7 @@
     {{ range .pageSlice }}
     <span>
       {{ if eq $.page . }}
-      {{ . }}
+      [{{ . }}]
       {{ else }}
       <a href=/{{ $.BoardType }}/{{ . }}>{{ . }}</a>
       {{ end}}

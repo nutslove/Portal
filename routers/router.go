@@ -51,6 +51,7 @@ func SetupRouter(router *gin.Engine) {
 		c.HTML(http.StatusOK, "index.tpl", gin.H{
 			"IsLoggedIn": username != nil,
 			"Username":   username,
+			"TopPage":    true,
 		})
 	})
 
@@ -193,6 +194,13 @@ func SetupRouter(router *gin.Engine) {
 				return
 			}
 
+			postIdInt, err := strconv.Atoi(postId)
+			if err != nil {
+				log.Fatal("cannot convert postId(string) to int:", err)
+				return
+			}
+			postdate := services.GetCareerPostDate(postIdInt, db)
+
 			// URLパラメータに"modify=true"が設定されている場合は既存Postの修正
 			if is_modify := c.Query("modify"); is_modify == "true" {
 				if username == nil || username != Author {
@@ -215,6 +223,8 @@ func SetupRouter(router *gin.Engine) {
 			c.HTML(http.StatusOK, "index.tpl", gin.H{
 				"IsLoggedIn":  username != nil,
 				"Username":    username,
+				"CreatedAt":   postdate["CreatedAt"],
+				"ModifiedAt":  postdate["ModifiedAt"],
 				"Author":      Author,
 				"PostId":      postId,
 				"PostRead":    true,
@@ -249,10 +259,11 @@ func SetupRouter(router *gin.Engine) {
 
 			addedPost := models.CareerBoard{
 				// Numberは主キーでautoIncrementオプションが有効になっていて指定しなくても自動で最後のレコードのNumber＋１でInsertしてくれる
-				Title:  requestData.Title,
-				Author: username.(string),
-				Date:   time.Now(),
-				Count:  0,
+				Title:      requestData.Title,
+				Author:     username.(string),
+				CreatedAt:  time.Now(),
+				ModifiedAt: time.Now(),
+				// Count:      0,
 			}
 
 			result := db.Create(&addedPost)
@@ -358,9 +369,6 @@ func SetupRouter(router *gin.Engine) {
 				return
 			}
 
-			//// Titleが変わっていたらDBとOpenSearch内のTitleを更新する
-			//// OpenSearchの当該idのpostを更新する
-
 			/////// 以下の処理は後でserviceとかに全部移す
 			var requestData RequestData
 
@@ -381,9 +389,9 @@ func SetupRouter(router *gin.Engine) {
 			}
 
 			postForDB := models.CareerBoard{
-				Number: postIdInt,
-				Title:  requestData.Title,
-				Date:   time.Now(),
+				Number:     postIdInt,
+				Title:      requestData.Title,
+				ModifiedAt: time.Now(),
 			}
 
 			result := db.Updates(&postForDB)
@@ -452,6 +460,26 @@ func SetupRouter(router *gin.Engine) {
 			})
 		})
 	}
+
+	// 新規Post書き込み画面
+	career.GET("/search", func(c *gin.Context) {
+		session := sessions.Default(c)
+		username := session.Get("username")
+		// ログインせず直でURL指定してアクセスした場合、１ページにリダイレクトする
+		if username == nil {
+			c.Redirect(http.StatusFound, "/career/")
+		}
+		query := c.Query("query") // inputのnameの値を指定して取得
+
+		services.SearchCareerPost(query, db)
+
+		// c.HTML(http.StatusOK, "index.tpl", gin.H{
+		// 	"IsLoggedIn": username != nil,
+		// 	"Username":   username,
+		// 	"PostWrite":  true,
+		// 	"BoardType":  "career",
+		// })
+	})
 
 	// user := router.Group("/users")
 

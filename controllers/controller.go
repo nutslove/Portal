@@ -3,6 +3,8 @@ package controllers
 import (
 	"html/template"
 	"net/http"
+	"strings"
+	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -39,4 +41,12 @@ func RegisterCustomFunction(r *gin.Engine) {
 	}
 
 	r.SetFuncMap(funcMap)
+}
+
+func SplitBySpaces(s string) []string {
+	// 全角と半角のスペースで分割
+	f := func(c rune) bool {
+		return unicode.IsSpace(c) || c == '　' // '　'は全角スペース
+	}
+	return strings.FieldsFunc(strings.TrimSpace(s), f) // strings.FieldsFuncはfがtrueを返す文字（今回の場合は半角または全角のスペース）で文字列を分割し、結果を文字列のスライスとして返す
 }

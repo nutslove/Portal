@@ -20,6 +20,8 @@ import (
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
+const postNumPerPage int = 10
+
 func UserExistCheck(userid string, db *gorm.DB) bool {
 	user := models.UserData{Nickname: userid}
 	selectResult := db.Take(&user)
@@ -81,14 +83,13 @@ func UserCreate(c *gin.Context, db *gorm.DB) {
 // }
 
 func GetCareerPostsList(page int, db *gorm.DB) ([]map[string]interface{}, int, int, []int) {
-
 	var posts []models.CareerBoard
-	db.Order("num desc").Offset((page - 1) * 15).Limit(15).Find(&posts) // 1ページ内にpostは15個まで表示
+	db.Order("num desc").Offset((page - 1) * postNumPerPage).Limit(postNumPerPage).Find(&posts) // 1ページ内にpostはpostNumPerPageに定義した個数まで表示
 
 	postNum := len(posts)
 	var count int64
 	db.Model(&models.CareerBoard{}).Count(&count)
-	pageNum := int(math.Ceil((float64(count) / 15))) // 総ページ数 (1ページ内にpostは15個まで表示)
+	pageNum := int(math.Ceil((float64(count) / float64(postNumPerPage)))) // 総ページ数 ( 1ページ内にpostはpostNumPerPageに定義した個数まで表示)
 	if pageNum == 0 {
 		pageNum = 1
 	}
@@ -111,11 +112,14 @@ func GetCareerPostsList(page int, db *gorm.DB) ([]map[string]interface{}, int, i
 
 	for _, post := range posts {
 		formattedPosts = append(formattedPosts, map[string]interface{}{
-			"Number": post.Number,
-			"Title":  post.Title,
-			"Author": post.Author,
-			"Date":   post.Date.Format("2006-01-02 15:04"),
-			"Count":  post.Count,
+			"Number":     post.Number,
+			"Title":      post.Title,
+			"Author":     post.Author,
+			"CreatedAt":  post.CreatedAt.Format("2006年01月02日 15:04"),
+			"ModifiedAt": post.ModifiedAt.Format("2006年01月02日 15:04"),
+			// "CreatedAt":  post.CreatedAt.Format("2006-01-02 15:04"),
+			// "ModifiedAt": post.ModifiedAt.Format("2006-01-02 15:04"),
+			// "Count":      post.Count,
 		})
 	}
 
@@ -217,16 +221,6 @@ func AddCareerPost(db *gorm.DB) {
 
 }
 
-func PostExistCheck(postId int, db *gorm.DB) bool {
-	post := models.CareerBoard{Number: postId}
-	selectResult := db.Take(&post)
-	if errors.Is(selectResult.Error, gorm.ErrRecordNotFound) {
-		return false
-	} else {
-		return true
-	}
-}
-
 func DeleteCareerPost(postId int, db *gorm.DB) {
 	post := models.CareerBoard{Number: postId}
 	result := db.Delete(&post)
@@ -250,4 +244,130 @@ func DeleteCareerPost(postId int, db *gorm.DB) {
 		log.Printf("WARNING: OpenSearchからDocumentID[%d]のデータ削除に失敗しました\n", postId)
 	}
 	fmt.Println("deleteResponse:", deleteResponse)
+}
+
+func PostExistCheck(postId int, db *gorm.DB) bool {
+	post := models.CareerBoard{Number: postId}
+	selectResult := db.Take(&post)
+	if errors.Is(selectResult.Error, gorm.ErrRecordNotFound) {
+		return false
+	} else {
+		return true
+	}
+}
+
+func GetCareerPostDate(postId int, db *gorm.DB) map[string]interface{} {
+	var post models.CareerBoard
+	db.Select("createdat", "modifiedat").Where("num = ?", postId).Take(&post) // createdatとmodifiedatカラムだけ取得
+	// fmt.Println(post.CreatedAt)
+	// fmt.Println(post.ModifiedAt)f
+	formattedPost := map[string]interface{}{
+		"CreatedAt":  post.CreatedAt.Format("2006年01月02日 15:04"),
+		"ModifiedAt": post.ModifiedAt.Format("2006年01月02日 15:04"),
+	}
+	return formattedPost
+}
+
+func SearchCareerPost(searchKeywords string, db *gorm.DB) {
+	// searchtextを全角/半角スペースで分割し、AND条件で探す
+	// OpenSearchからTitleとPostで検索して、ひっかかったもののNumberをスライスに追加し、それをpostNumPerPageに指定した数の分表示する
+	// Keyword検索はGoroutineで並列化
+	fmt.Println("searchKeyword:", searchKeywords)
+	searchKeywordList := controllers.SplitBySpaces(searchKeywords)
+
+	client, err := config.OpensearchNewClient()
+	if err != nil {
+		log.Fatal("cannot initialize", err)
+	}
+
+	ctx := context.Background()
+
+	var HitIDs []string
+
+	for _, searchKeyword := range searchKeywordList {
+		// content := strings.NewReader(fmt.Sprintf(`{
+		// 	"query": {
+		// 			"bool": {
+		// 					"should": [
+		// 							{ "match": { "title": "%s" }},
+		// 							{ "match": { "post": "%s" }}
+		// 					]
+		// 			}
+		// 	}
+		// }`, searchKeyword, searchKeyword))
+		content := strings.NewReader(fmt.Sprintf(`{
+			"query": {
+					"bool": {
+							"should": [
+									{ "match_phrase": { "title": "%s" }},
+									{ "match_phrase": { "post": "%s" }}
+							]
+					}
+			}
+		}`, searchKeyword, searchKeyword))
+
+		searchResp, err := client.Search(
+			ctx,
+			&opensearchapi.SearchReq{
+				Body: content,
+			},
+		)
+		if err != nil {
+			log.Fatal("failed to search document ", err)
+		}
+		fmt.Printf("Search hits: %v\n", searchResp.Hits.Total.Value)
+
+		if searchResp.Hits.Total.Value > 0 {
+			for _, hit := range searchResp.Hits.Hits {
+
+				HitIDs = append(HitIDs, hit.ID)
+				fmt.Printf("Document ID: %s\n", hit.ID)
+
+			}
+		}
+	}
+
+	fmt.Println("HitIDs:", HitIDs)
+
+	// var posts []models.CareerBoard
+	// db.Order("num desc").Offset((page - 1) * postNumPerPage).Limit(postNumPerPage).Find(&posts) // 1ページ内にpostはpostNumPerPageに定義した個数まで表示
+
+	// postNum := len(posts)
+	// var count int64
+	// db.Model(&models.CareerBoard{}).Count(&count)
+	// pageNum := int(math.Ceil((float64(count) / float64(postNumPerPage)))) // 総ページ数 ( 1ページ内にpostはpostNumPerPageに定義した個数まで表示)
+	// if pageNum == 0 {
+	// 	pageNum = 1
+	// }
+	// var pageSlice []int
+	// if pageNum > 10 && page > pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 〜 最後のページの場合、最後のページ - 10 〜 最後のページを表示する
+	// 	for i := pageNum - 9; i <= pageNum; i++ {
+	// 		pageSlice = append(pageSlice, i)
+	// 	}
+	// } else if pageNum > 10 && page <= pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 より前の場合、ユーザがアクセスしたページ 〜 ユーザがアクセスしたページ + 10ページを表示する
+	// 	for i := page; i < page+10; i++ {
+	// 		pageSlice = append(pageSlice, i)
+	// 	}
+	// } else { // 総ページ数が10個以下の場合
+	// 	for i := 1; i <= pageNum; i++ {
+	// 		pageSlice = append(pageSlice, i)
+	// 	}
+	// }
+
+	// var formattedPosts []map[string]interface{}
+
+	// for _, post := range posts {
+	// 	formattedPosts = append(formattedPosts, map[string]interface{}{
+	// 		"Number":     post.Number,
+	// 		"Title":      post.Title,
+	// 		"Author":     post.Author,
+	// 		"CreatedAt":  post.CreatedAt.Format("2006年01月02日 15:04"),
+	// 		"ModifiedAt": post.ModifiedAt.Format("2006年01月02日 15:04"),
+	// 		// "CreatedAt":  post.CreatedAt.Format("2006-01-02 15:04"),
+	// 		// "ModifiedAt": post.ModifiedAt.Format("2006-01-02 15:04"),
+	// 		// "Count":      post.Count,
+	// 	})
+	// }
+
+	// return formattedPosts, postNum, pageNum, pageSlice
 }
