@@ -208,6 +208,11 @@ main {
     width: 100px;
 }
 
+.search-result {
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
 .postlist {
     cursor: pointer;
     text-decoration: none;
@@ -272,5 +277,5 @@ main {
 
 .post-date {
     margin-top: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }

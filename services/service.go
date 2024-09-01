@@ -18,6 +18,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
+	"golang.org/x/exp/slices"
 )
 
 const postNumPerPage int = 10
@@ -268,7 +269,7 @@ func GetCareerPostDate(postId int, db *gorm.DB) map[string]interface{} {
 	return formattedPost
 }
 
-func SearchCareerPost(searchKeywords string, db *gorm.DB) {
+func SearchCareerPost(searchKeywords string, db *gorm.DB) []map[string]interface{} {
 	// searchtextを全角/半角スペースで分割し、AND条件で探す
 	// OpenSearchからTitleとPostで検索して、ひっかかったもののNumberをスライスに追加し、それをpostNumPerPageに指定した数の分表示する
 	// Keyword検索はGoroutineで並列化
@@ -283,8 +284,10 @@ func SearchCareerPost(searchKeywords string, db *gorm.DB) {
 	ctx := context.Background()
 
 	var HitIDs []string
+	var uniqueHitIDs []string
 
 	for _, searchKeyword := range searchKeywordList {
+		/// should節に複数のクエリを指定することで、いずれの (OR) 条件にマッチするDocumentを取得
 		// content := strings.NewReader(fmt.Sprintf(`{
 		// 	"query": {
 		// 			"bool": {
@@ -324,50 +327,37 @@ func SearchCareerPost(searchKeywords string, db *gorm.DB) {
 				fmt.Printf("Document ID: %s\n", hit.ID)
 
 			}
+			slices.Sort(HitIDs)
+			uniqueHitIDs = slices.Compact(HitIDs) // １つのPostが複数の検索キーワードをすべて含めている場合、同じPostのIDが重複してスライスに入る可能性があるため、重複排除を行う
 		}
 	}
 
-	fmt.Println("HitIDs:", HitIDs)
+	fmt.Println("Hit Document IDs:", uniqueHitIDs)
+	fmt.Println("Hit Document Count:", len(uniqueHitIDs))
 
-	// var posts []models.CareerBoard
-	// db.Order("num desc").Offset((page - 1) * postNumPerPage).Limit(postNumPerPage).Find(&posts) // 1ページ内にpostはpostNumPerPageに定義した個数まで表示
-
-	// postNum := len(posts)
-	// var count int64
-	// db.Model(&models.CareerBoard{}).Count(&count)
-	// pageNum := int(math.Ceil((float64(count) / float64(postNumPerPage)))) // 総ページ数 ( 1ページ内にpostはpostNumPerPageに定義した個数まで表示)
-	// if pageNum == 0 {
-	// 	pageNum = 1
+	var posts []models.CareerBoard
+	// for _, id := range uniqueHitIDs {
+	// 	var post models.CareerBoard
+	// 	db.Where("num = ?", id).Take(&post)
+	// 	posts = append(posts, post)
+	// 	fmt.Println("Current Post:", post)
 	// }
-	// var pageSlice []int
-	// if pageNum > 10 && page > pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 〜 最後のページの場合、最後のページ - 10 〜 最後のページを表示する
-	// 	for i := pageNum - 9; i <= pageNum; i++ {
-	// 		pageSlice = append(pageSlice, i)
-	// 	}
-	// } else if pageNum > 10 && page <= pageNum-9 { // 総ページ数が10個より多くてユーザがアクセスしたページが 最後のページ - 10 より前の場合、ユーザがアクセスしたページ 〜 ユーザがアクセスしたページ + 10ページを表示する
-	// 	for i := page; i < page+10; i++ {
-	// 		pageSlice = append(pageSlice, i)
-	// 	}
-	// } else { // 総ページ数が10個以下の場合
-	// 	for i := 1; i <= pageNum; i++ {
-	// 		pageSlice = append(pageSlice, i)
-	// 	}
-	// }
+	//// パフォーマンスの観点から、大量のデータを扱う場合は、以下のようにクエリを1回で実行する方が効率的
+	db.Where("num IN (?)", uniqueHitIDs).Find(&posts)
+	fmt.Println("All Posts:", posts)
 
-	// var formattedPosts []map[string]interface{}
+	var formattedPosts []map[string]interface{}
 
-	// for _, post := range posts {
-	// 	formattedPosts = append(formattedPosts, map[string]interface{}{
-	// 		"Number":     post.Number,
-	// 		"Title":      post.Title,
-	// 		"Author":     post.Author,
-	// 		"CreatedAt":  post.CreatedAt.Format("2006年01月02日 15:04"),
-	// 		"ModifiedAt": post.ModifiedAt.Format("2006年01月02日 15:04"),
-	// 		// "CreatedAt":  post.CreatedAt.Format("2006-01-02 15:04"),
-	// 		// "ModifiedAt": post.ModifiedAt.Format("2006-01-02 15:04"),
-	// 		// "Count":      post.Count,
-	// 	})
-	// }
+	for _, post := range posts {
+		formattedPosts = append(formattedPosts, map[string]interface{}{
+			"Number":     post.Number,
+			"Title":      post.Title,
+			"Author":     post.Author,
+			"CreatedAt":  post.CreatedAt.Format("2006年01月02日 15:04"),
+			"ModifiedAt": post.ModifiedAt.Format("2006年01月02日 15:04"),
+			// "Count":      post.Count,
+		})
+	}
 
-	// return formattedPosts, postNum, pageNum, pageSlice
+	return formattedPosts
 }
