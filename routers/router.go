@@ -461,24 +461,27 @@ func SetupRouter(router *gin.Engine) {
 		})
 	}
 
-	// 新規Post書き込み画面
+	// Post検索、検索にヒットしたPost一覧表示
 	career.GET("/search", func(c *gin.Context) {
 		session := sessions.Default(c)
 		username := session.Get("username")
-		// ログインせず直でURL指定してアクセスした場合、１ページにリダイレクトする
-		if username == nil {
-			c.Redirect(http.StatusFound, "/career/")
-		}
 		query := c.Query("query") // inputのnameの値を指定して取得
 
-		services.SearchCareerPost(query, db)
+		posts := services.SearchCareerPost(query, db)
 
-		// c.HTML(http.StatusOK, "index.tpl", gin.H{
-		// 	"IsLoggedIn": username != nil,
-		// 	"Username":   username,
-		// 	"PostWrite":  true,
-		// 	"BoardType":  "career",
-		// })
+		c.HTML(http.StatusOK, "index.tpl", gin.H{
+			"IsLoggedIn":        username != nil,
+			"Username":          username,
+			"posts":             posts,
+			"page":              1,
+			"pageSlice":         []int{1},
+			"pageNum":           1,
+			"PostList":          true,
+			"BoardType":         "career",
+			"BoardName":         "キャリア相談",
+			"query":             query,
+			"SearchResultCount": len(posts),
+		})
 	})
 
 	// user := router.Group("/users")

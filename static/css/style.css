@@ -208,6 +208,11 @@ main {
     width: 100px;
 }
 
+.search-result {
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
 .postlist {
     cursor: pointer;
     text-decoration: none;
@@ -243,6 +248,7 @@ main {
     /*padding-top: 30px; /* 上部に余白を追加 */
     width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
+    margin-top: 15px;
 }
 
 .post-write {
@@ -272,5 +278,5 @@ main {
 
 .post-date {
     margin-top: 0px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }

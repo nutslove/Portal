@@ -2,15 +2,22 @@
 <div class="board">
   <h1>{{ .BoardName }}</h1>
   <nav class="search">
-  <form action="/{{ .BoardType }}/search" method="get">
-    {{/* <input type="text" name="search" placeholder="Search post..."> */}}
-    <input type="text" name="query" placeholder="Search post...">
+  <form action="/{{ .BoardType }}/search" method="get" onsubmit="return validateSearchForm()">
+  {{/* <form action="/{{ .BoardType }}/search" method="get"> */}}
+    {{/* <input type="text" name="query" placeholder="Search post..." required> */}} 
+    {{/* requiredだけでは、スペースだけ入れたパターンを弾けない */}}
+    <input type="text" name="query" placeholder="Search post..." id="searchQuery">
     <button type="submit">検索</button>
   </form>
   {{ if .IsLoggedIn }}
   <a href="/{{ .BoardType }}/posting" class="button">新規投稿</a>
   {{ end }}
   </nav>
+  <div class="search-result">
+    {{ if .query }}
+      "{{ .query }}" 検索結果: {{ .SearchResultCount}}件
+    {{ end }}
+  </div>
   <table>
     <thead>
       <tr>
@@ -66,4 +73,15 @@
     {{ end }}
   </div>
 </div>
+
+<script>
+function validateSearchForm() {
+  let query = document.getElementById("searchQuery").value;
+  if (query == null || query.trim() == "") {
+    alert("検索キーワードを入力してください");
+    return false;
+  }
+  return true;
+}
+</script>
 {{ end }}

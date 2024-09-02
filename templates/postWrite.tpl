@@ -82,7 +82,7 @@
         } */}}
         #title {
             border: 2px solid #a0a0a0;
-            width: 250px;
+            width: 320px;
             border-radius: 4px;
             height: 25px;
             font-size: 14px;
