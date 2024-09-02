@@ -299,6 +299,7 @@ func SearchCareerPost(searchKeywords string, db *gorm.DB) []map[string]interface
 		// 	}
 		// }`, searchKeyword, searchKeyword))
 		content := strings.NewReader(fmt.Sprintf(`{
+			"size": 100,
 			"query": {
 					"bool": {
 							"should": [

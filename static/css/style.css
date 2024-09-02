@@ -248,6 +248,7 @@ main {
     /*padding-top: 30px; /* 上部に余白を追加 */
     width: 60%;
     margin: 0 auto; /* 水平方向の中央揃え */
+    margin-top: 15px;
 }
 
 .post-write {
