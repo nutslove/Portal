@@ -21,7 +21,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const postNumPerPage int = 10
+const postNumPerPage int = 8
 
 func UserExistCheck(userid string, db *gorm.DB) bool {
 	user := models.UserData{Nickname: userid}
