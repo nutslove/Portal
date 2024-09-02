@@ -1,20 +1,14 @@
 FROM golang:1.22-alpine
 
-COPY go.mod ./
-COPY go.sum ./
+WORKDIR /app
 
-## Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
+COPY . .
 
-COPY *.go ./
-COPY config ./
-COPY controllers ./
-COPY middlewares ./
-COPY models ./
-COPY routers ./
-COPY services ./
-COPY static ./
-COPY templates ./
+# 必要なビルドツールをインストール
+RUN apk add --no-cache build-base
+
+# 依存関係を整理
+RUN go mod tidy
 
 RUN go build -o /portal_app
 
