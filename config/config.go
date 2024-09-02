@@ -19,16 +19,11 @@ import (
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 )
 
-var (
-	OtlpEndpoint      string = os.Getenv("OTLP_ENDPOINT")
-	OpenSearchAddress string = os.Getenv("OPENSEARCH_ADDRESS")
-)
-
 func OtelInitialSetting() {
 	// OTLP Exporter設定
 	exporter, err := otlptracehttp.New(
 		context.Background(),
-		otlptracehttp.WithEndpoint(OtlpEndpoint),
+		otlptracehttp.WithEndpoint("localhost:4318"),
 		otlptracehttp.WithInsecure(),
 	)
 	if err != nil {
@@ -55,7 +50,7 @@ func OpensearchNewClient() (*opensearchapi.Client, error) {
 				Transport: &http.Transport{
 					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 				},
-				Addresses: []string{fmt.Sprintf("https://%s:9200", OpenSearchAddress)},
+				Addresses: []string{"https://localhost:9200"},
 				Username:  "admin",
 				Password:  os.Getenv("OPENSEARCH_ADMIN_PASSWORD"),
 			},

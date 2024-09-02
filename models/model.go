@@ -44,13 +44,12 @@ type CareerBoardComment struct {
 }
 
 var (
-	DBUser       string = os.Getenv("MYSQL_USER")
-	Password     string = os.Getenv("MYSQL_PASSWORD")
-	MysqlAddress string = os.Getenv("MYSQL_ADDRESS")
+	DBUser   string = os.Getenv("MYSQL_USER")
+	Password string = os.Getenv("MYSQL_PASSWORD")
 )
 
 func ConnectDB() *gorm.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/portal?charset=utf8mb4&parseTime=True&loc=Local", DBUser, Password, MysqlAddress)
+	dsn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/portal?charset=utf8mb4&parseTime=True&loc=Local", DBUser, Password)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
