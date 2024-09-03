@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -49,7 +50,8 @@ var (
 )
 
 func ConnectDB() *gorm.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/portal?charset=utf8mb4&parseTime=True&loc=Local", DBUser, Password)
+	timezone := url.QueryEscape("Asia/Tokyo")
+	dsn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/portal?charset=utf8mb4&parseTime=True&loc=%s", DBUser, Password, timezone)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
