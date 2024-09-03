@@ -152,6 +152,7 @@
         .modify-cancel-button {
             text-align: center;
             margin-top: 10px;
+            margin-bottom: 15px;
         }
     </style>
     <script>
