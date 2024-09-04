@@ -50,7 +50,7 @@ var (
 )
 
 func ConnectDB() *gorm.DB {
-	timezone := url.QueryEscape("Asia/Tokyo")
+	timezone := url.QueryEscape("Asia/Tokyo") // 文字列をURL用にエスケープ
 	dsn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/portal?charset=utf8mb4&parseTime=True&loc=%s", DBUser, Password, timezone)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
